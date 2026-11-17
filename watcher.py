@@ -27,7 +27,7 @@ import os
 import json
 import datetime as dt
 import urllib.request
-import urllib.parse
+import urllib.parse  # noqa: F401 (kept for Telegram form-encoding)
 
 # Reuse the EXACT detection logic the app shows you, so alerts never drift
 # from the cards. (Importing app.py does not start the web server.)
@@ -123,10 +123,15 @@ def send_push(title, body):
         return "telegram"
 
     if topic:
+        # Publish via ntfy's JSON API so the title/message travel in the UTF-8
+        # body, not in HTTP headers (headers are latin-1 only, which would choke
+        # on the ▲/▼/· characters).
         server = os.getenv("NTFY_SERVER", "https://ntfy.sh").rstrip("/")
-        _post(f"{server}/{topic}", data=body.encode("utf-8"),
-              headers={"Title": title, "Priority": "high",
-                       "Tags": "chart_with_upwards_trend"})
+        payload = json.dumps({
+            "topic": topic, "title": title, "message": body,
+            "priority": 4, "tags": ["chart_with_upwards_trend"],
+        }).encode("utf-8")
+        _post(server, data=payload, headers={"Content-Type": "application/json"})
         return "ntfy"
 
     print(f"[DRY-RUN — no push backend set] {title} :: {body}")
