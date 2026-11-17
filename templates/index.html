@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Market Scan — Honest Briefing</title>
+<!-- iOS "Add to Home Screen": opens full-screen like an app -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Market Scan">
+<meta name="theme-color" content="#0b0e13">
+<style>
+  :root{
+    --bg:#0f1115; --card:#1a1e26; --card2:#232833; --line:#2c3340;
+    --text:#e8ecf3; --muted:#9aa4b2; --up:#36c48a; --down:#e5705a;
+    --accent:#6ea8fe; --warn:#e8b84b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 16px 80px;}
+  h1{font-size:22px;margin:0 0 4px;}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:18px;}
+  .disclaimer{background:#2a2113;border:1px solid #5a4a1e;color:#f0d98a;
+    padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:18px;}
+  .bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px;}
+  button.scan{background:var(--accent);color:#06101f;border:0;font-weight:700;
+    font-size:15px;padding:12px 22px;border-radius:10px;cursor:pointer;}
+  button.scan:disabled{opacity:.5;cursor:default;}
+  .stamp{color:var(--muted);font-size:12px;}
+  .boost{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer;
+    background:var(--card);border:1px solid var(--line);padding:9px 13px;border-radius:10px;user-select:none}
+  .boost:has(:checked){border-color:var(--warn);color:var(--warn);background:rgba(232,184,75,.08)}
+  .boost-note{background:rgba(232,184,75,.08);border:1px solid #5a4a1e;color:#f0d98a;
+    padding:9px 13px;border-radius:10px;font-size:12px;line-height:1.5;margin:-8px 0 18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:14px;margin-bottom:24px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;}
+  .card h3{margin:0 0 8px;font-size:17px;display:flex;justify-content:space-between;align-items:center}
+  .price{color:var(--muted);font-weight:500;font-size:14px}
+  .row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;border-top:1px solid var(--line);}
+  .row:first-of-type{border-top:0}
+  .k{color:var(--muted)}
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+  .b-up{background:rgba(54,196,138,.15);color:var(--up)}
+  .b-down{background:rgba(229,112,90,.15);color:var(--down)}
+  .b-wait{background:rgba(154,164,178,.15);color:var(--muted)}
+  .b-trig{background:rgba(110,168,254,.18);color:var(--accent)}
+  .qual{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+  .qual.good{background:rgba(54,196,138,.15);color:var(--up)}
+  .qual.warn{background:rgba(232,184,75,.15);color:var(--warn)}
+  .qual.bad{background:rgba(229,112,90,.15);color:var(--down)}
+  .briefing{background:var(--card2);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;}
+  .briefing h2{margin:0 0 8px;font-size:15px;color:var(--accent)}
+  .mock{color:var(--warn);font-size:12px;margin-bottom:6px}
+  .source{color:var(--muted);font-size:12px;margin-bottom:6px}
+  .err{color:var(--down);font-size:12px;margin-bottom:8px}
+  .outlook-warn{background:#2a2113;border:1px solid #5a4a1e;color:#f0d98a;
+    padding:8px 12px;border-radius:9px;font-size:12px;line-height:1.45;margin-bottom:12px;}
+  /* briefing formatting */
+  .bf-h{font-size:13px;color:var(--accent);margin:14px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+  .bf-h:first-child{margin-top:0}
+  .bf-p{margin:4px 0;font-size:14px}
+  .bf-out{margin:4px 0 10px;font-size:13.5px;color:#cfe0ff;border-left:3px solid var(--accent);
+    padding:4px 0 4px 10px;background:rgba(110,168,254,.07);border-radius:0 6px 6px 0}
+  .bf-gap{height:4px}
+  /* trade levels (on triggered cards) */
+  .trade{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+  .trade-h{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin-bottom:7px}
+  .trade-h span{text-transform:none;letter-spacing:0;color:var(--muted)}
+  .trade-in{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  .trade-in label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .trade-in input,.trade-in select{background:#11151c;border:1px solid var(--line);color:var(--text);
+    padding:7px 9px;border-radius:7px;font-size:13px;width:100%}
+  .t-warn{color:var(--warn);font-size:12px}
+  .t-log{margin-top:8px;width:100%;background:transparent;border:1px solid var(--accent);color:var(--accent);
+    font-weight:600;font-size:12px;padding:7px 10px;border-radius:7px;cursor:pointer}
+  .t-log:hover{background:rgba(110,168,254,.12)}
+  .logbook.flash{outline:2px solid var(--accent);outline-offset:3px;transition:outline .2s}
+  .trade-check{font-size:12px;line-height:1.45;border-radius:7px;padding:0}
+  .trade-check.good{background:rgba(54,196,138,.12);color:#bde6d2;padding:8px 10px;margin-top:8px;border:1px solid rgba(54,196,138,.35)}
+  .trade-check.warn{background:rgba(232,184,75,.12);color:#f0d98a;padding:8px 10px;margin-top:8px;border:1px solid #5a4a1e}
+  .trade-check.bad{background:rgba(229,112,90,.14);color:#f3b6a9;padding:8px 10px;margin-top:8px;border:1px solid rgba(229,112,90,.4)}
+  .trade-check b{color:inherit}
+  .trade-out{display:flex;flex-direction:column;gap:5px}
+  .t-row{display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 9px;border-radius:7px}
+  .t-row span:first-child{color:var(--muted);min-width:76px}
+  .t-row b{font-size:14px}
+  .t-pips{margin-left:auto;font-size:11px;color:var(--muted)}
+  .t-sl{background:rgba(229,112,90,.12)} .t-sl b{color:var(--down)}
+  .t-tp{background:rgba(54,196,138,.12)} .t-tp b{color:var(--up)}
+  .t-muted{color:var(--muted);font-size:12px}
+  .rec{color:var(--up);font-size:10px;font-weight:600;border:1px solid rgba(54,196,138,.4);border-radius:4px;padding:0 4px;margin-left:3px}
+  .trade-hint{color:var(--muted);font-size:11px;line-height:1.4;margin-top:7px}
+  .trade-hint b{color:var(--up)}
+  /* news on cards */
+  .news{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+  .news-h{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:5px}
+  .news-sub{text-transform:none;letter-spacing:0}
+  .news-empty{font-size:12px;color:var(--muted)}
+  .news ul{list-style:none;margin:0;padding:0}
+  .news li{margin:0 0 7px}
+  .news-t{font-size:12.5px;line-height:1.35}
+  .news-t a{color:var(--text);text-decoration:none;border-bottom:1px solid var(--line)}
+  .news-t a:hover{color:var(--accent);border-color:var(--accent)}
+  .news-m{font-size:11px;color:var(--muted);margin-top:1px}
+  .stale{color:var(--warn);font-size:10px;border:1px solid #5a4a1e;border-radius:4px;padding:0 4px;margin-left:4px}
+  /* price alerts */
+  .alerts{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:24px}
+  .alerts h2{margin:0 0 6px;font-size:15px}
+  .alerts-sub{color:var(--muted);font-size:12px;font-weight:400}
+  .alerts-note{color:var(--muted);font-size:12px;line-height:1.5;margin-bottom:12px}
+  .al-form{display:grid;grid-template-columns:1.1fr .9fr 1fr .8fr 1.4fr auto;gap:8px;margin-bottom:10px}
+  .al-form select,.al-form input{background:#11151c;border:1px solid var(--line);color:var(--text);
+    padding:8px 10px;border-radius:8px;font-size:13px;width:100%}
+  .al-add{background:var(--accent);color:#06101f;border:0;font-weight:700;border-radius:8px;cursor:pointer;padding:8px 12px;font-size:13px;white-space:nowrap}
+  .al-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  .al-check{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;cursor:pointer;padding:7px 14px;font-size:13px}
+  .al-stamp{color:var(--muted);font-size:12px}
+  .al-notify{color:var(--muted);font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer}
+  .al-list{display:flex;flex-direction:column;gap:8px}
+  .al-empty{color:var(--muted);font-size:13px}
+  .al-item{display:flex;align-items:center;gap:10px;background:#11151c;border:1px solid var(--line);
+    border-radius:9px;padding:9px 12px;font-size:13px}
+  .al-item.hit{border-color:var(--accent);background:rgba(110,168,254,.10)}
+  .al-side{font-weight:700;padding:2px 9px;border-radius:6px;font-size:12px}
+  .al-side.Buy{background:rgba(54,196,138,.15);color:var(--up)}
+  .al-side.Sell{background:rgba(229,112,90,.15);color:var(--down)}
+  .al-cond{color:var(--text)}
+  .al-note{color:var(--muted);font-style:italic}
+  .al-status{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
+  .al-status.hit{color:var(--accent);font-weight:700}
+  .al-del{background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:0 2px}
+  .al-del:hover{color:var(--down)}
+  @media(max-width:640px){.al-form{grid-template-columns:1fr 1fr}}
+  /* levels to watch */
+  .watch{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:24px}
+  .watch h2{margin:0 0 6px;font-size:15px}
+  .watch-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .watch-item{background:#11151c;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .watch-item.live{border-color:var(--accent);background:rgba(110,168,254,.07)}
+  .watch-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:15px}
+  .watch-price{color:var(--muted);font-size:13px;margin-right:auto}
+  .watch-row{display:flex;gap:10px;font-size:13px;padding:5px 0;border-top:1px solid var(--line)}
+  .watch-k{color:var(--muted);min-width:98px;flex:0 0 98px;font-weight:600}
+  .watch-v{line-height:1.45}
+  .watch-v b{color:var(--text)}
+  /* trade logbook */
+  .logbook{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:24px}
+  .logbook h2{margin:0 0 12px;font-size:15px}
+  .lb-top{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .lb-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .lb-bal{font-size:26px;font-weight:700}
+  .lb-bal.up{color:var(--up)} .lb-bal.down{color:var(--down)}
+  .lb-net{font-size:12px;color:var(--muted)}
+  .lb-net.up{color:var(--up)} .lb-net.down{color:var(--down)}
+  .lb-stats{display:flex;gap:16px;font-size:13px;color:var(--muted)}
+  .lb-stats .up{color:var(--up)} .lb-stats .down{color:var(--down)}
+  .lb-stats b{color:var(--text);font-size:15px}
+  .lb-start{margin-left:auto;font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .lb-start input{background:#11151c;border:1px solid var(--line);color:var(--text);padding:7px 9px;border-radius:7px;font-size:13px;width:120px}
+  .lb-form{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+  .lb-form label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .lb-form input,.lb-form select{background:#11151c;border:1px solid var(--line);color:var(--text);padding:8px 9px;border-radius:7px;font-size:13px}
+  .lb-form input[type=number]{width:96px} .lb-form input[type=text]{width:120px} .lb-form input[type=date]{width:140px}
+  .lb-add{background:var(--accent);color:#06101f;border:0;font-weight:700;border-radius:8px;cursor:pointer;padding:9px 14px;font-size:13px}
+  .lb-list{display:flex;flex-direction:column;gap:7px}
+  .lb-item{display:flex;align-items:center;gap:10px;background:#11151c;border:1px solid var(--line);border-radius:8px;padding:8px 11px;font-size:13px}
+  .lb-item.open{border-color:rgba(110,168,254,.4)}
+  .lb-date{color:var(--muted);font-size:12px;min-width:84px}
+  .lb-pair{font-weight:600;min-width:64px}
+  .lb-entry{color:var(--muted)}
+  .lb-note{color:var(--muted);font-style:italic}
+  .lb-res{margin-left:auto;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px}
+  .lb-res.win{background:rgba(54,196,138,.15);color:var(--up)}
+  .lb-res.loss{background:rgba(229,112,90,.15);color:var(--down)}
+  .lb-res.open{background:rgba(110,168,254,.15);color:var(--accent)}
+  .lb-pnl-in{width:84px;background:#0c0f14;border:1px solid var(--line);color:var(--text);padding:6px 8px;border-radius:6px;font-size:13px;text-align:right}
+  .lb-pnl.up .lb-pnl-in{color:var(--up)} .lb-pnl.down .lb-pnl-in{color:var(--down)}
+  /* position sizer (legacy) */
+  .sizer{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:24px}
+  .sizer h2{margin:0 0 10px;font-size:15px}
+  .sizer label{display:block;font-size:12px;color:var(--muted);margin:8px 0 2px}
+  .sizer input{width:100%;background:#11151c;border:1px solid var(--line);color:var(--text);
+    padding:8px 10px;border-radius:8px;font-size:14px}
+  .sizer .out{margin-top:12px;font-size:14px}
+  .sizer .out b{color:var(--accent)}
+  .inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+  .spinner{display:none;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Market Scan</h1>
+  <div class="sub">Rule-based FX setup states + an honest daily briefing.</div>
+
+  <div class="disclaimer">
+    <b>Not financial advice.</b> This shows objective, pre-computed rule states and
+    context — <b>never a prediction that a trade will profit</b>. No win-rates, no
+    "signals to take". Markets are unpredictable and most retail traders lose money.
+    Size every trade to risk ~1% of your account and decide for yourself.
+  </div>
+
+  <div class="bar">
+    <button class="scan" id="scanBtn">⟳ Scan market</button>
+    <label class="boost" title="Deeper AI intraday plan for each triggered setup. Uses more of your subscription per setup.">
+      <input type="checkbox" id="boostToggle"> ⚡ AI Boost Mode
+    </label>
+    <span class="spinner" id="spin">Scanning… fetching data and asking Claude…</span>
+    <span class="stamp" id="stamp"></span>
+  </div>
+  <div class="boost-note" id="boostNote" style="display:none">
+    ⚡ <b>Boost on:</b> for each <b>triggered</b> pair, Claude writes a deeper intraday plan (bias, trigger, if-taken, invalidation, risk) instead of the short one-liner. Uses more tokens per setup. With the full pair list, Claude only writes up triggered pairs either way — so usage stays bounded. <b>The trade numbers on the cards are still code, unchanged.</b>
+  </div>
+
+  <div class="grid" id="cards"></div>
+
+  <div class="briefing" id="briefingBox" style="display:none">
+    <h2>Claude briefing</h2>
+    <div class="outlook-warn">
+      ⚠ The <b>Outlook</b> lines below are <b>conditional scenarios</b> drawn from the data —
+      "if price does X, the picture leans Y" — <b>not</b> predictions of profit and
+      <b>not financial advice</b>. Markets are unpredictable; you decide and you own the risk.
+    </div>
+    <div class="mock" id="mockNote" style="display:none"></div>
+    <div id="briefingText"></div>
+  </div>
+
+  <div class="watch">
+    <h2>Levels to watch <span class="alerts-sub">— set these on your own platform</span></h2>
+    <div class="alerts-note">
+      These are the key price levels from the latest scan and what each one would mean.
+      Set your own alerts on your trading platform; nothing here places a trade.
+      <b>Not financial advice</b> — you decide and you own the risk.
+    </div>
+    <div id="watchList" class="watch-list"><div class="al-empty">Run a scan to see the levels to watch.</div></div>
+  </div>
+
+  <div class="logbook">
+    <h2>Trade logbook <span class="alerts-sub">— your trades, saved on this machine</span></h2>
+    <div class="lb-top">
+      <div class="lb-balance">
+        <div class="lb-lbl">Balance</div>
+        <div class="lb-bal" id="lbBal">—</div>
+        <div class="lb-net" id="lbNet"></div>
+      </div>
+      <div class="lb-stats" id="lbStats"></div>
+      <label class="lb-start">Starting balance (€)<input id="lbStart" type="number" step="any"></label>
+    </div>
+    <div class="lb-form">
+      <label>Date<input id="lbDate" type="date"></label>
+      <label>Pair<select id="lbPair"></select></label>
+      <label>Side<select id="lbSide"><option>Long</option><option>Short</option></select></label>
+      <label>Entry<input id="lbEntry" type="number" step="any" placeholder="price"></label>
+      <label>P/L €<input id="lbPnl" type="number" step="any" placeholder="blank = open"></label>
+      <label>Note<input id="lbNote" type="text" placeholder="optional"></label>
+      <button id="lbAdd" class="lb-add">+ Log trade</button>
+    </div>
+    <div class="lb-list" id="lbList"></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+
+function badgeTrend(t){
+  return `<span class="badge ${t==='UP'?'b-up':'b-down'}">4h ${t}</span>`;
+}
+function setupDir(setup){
+  if(/LONG setup triggered/i.test(setup)) return 'LONG';
+  if(/SHORT setup triggered/i.test(setup)) return 'SHORT';
+  return null;
+}
+function badgeSetup(setup){
+  const dir = setupDir(setup);
+  if(dir==='LONG')  return `<span class="badge b-trig">▲ LONG triggered</span>`;
+  if(dir==='SHORT') return `<span class="badge b-trig">▼ SHORT triggered</span>`;
+  return `<span class="badge b-wait">waiting</span>`;
+}
+function pdec(pair){ return (pair.includes('JPY')||pair.includes('HUF')) ? 3 : 5; }
+
+// At current market price, how good is a triggered setup's location?
+// Uses the pre-computed pip distances (reward to nearest structure vs stop).
+function marketRR(p){
+  const dir=setupDir(p.setup); if(!dir || !p.pips) return null;
+  const reward = dir==='LONG' ? p.pips.price_to_resistance : p.pips.price_to_support;
+  const risk = p.pips.suggested_stop;
+  if(!(risk>0)) return null;
+  return {dir, rr: reward/risk};
+}
+function qualBadge(p){
+  const m=marketRR(p); if(!m) return '';
+  if(m.rr>=2) return `<span class="qual good">✅ good spot · ${m.rr.toFixed(1)}R</span>`;
+  if(m.rr>=1) return `<span class="qual warn">⚠ tight · ${m.rr.toFixed(1)}R</span>`;
+  return `<span class="qual bad">⛔ weak entry here · ${m.rr.toFixed(1)}R</span>`;
+}
+
+// Prefill the stop-loss field from the ATR-based distance in the chosen side.
+function prefillSL(card){
+  const dir=card.querySelector('.t-dir').value,
+        entry=parseFloat(card.querySelector('.t-entry').value),
+        stop=parseFloat(card.dataset.stop), pair=card.dataset.pair;
+  if(entry>0 && stop>0){
+    const sl = dir==='LONG' ? entry-stop : entry+stop;
+    card.querySelector('.t-sl-in').value = sl.toFixed(pdec(pair));
+  }
+}
+
+// From side + entry + stop-loss + R:R → take-profit (and risk/reward in pips).
+function computeTrade(card){
+  const pair=card.dataset.pair,
+        dir=card.querySelector('.t-dir').value,
+        entry=parseFloat(card.querySelector('.t-entry').value),
+        sl=parseFloat(card.querySelector('.t-sl-in').value),
+        rr=parseFloat(card.querySelector('.t-rr').value)||2;
+  const out=card.querySelector('.trade-out');
+  const clearChk=()=>{ const c=card.querySelector('.trade-check'); if(c){ c.className='trade-check'; c.innerHTML=''; } };
+  if(!(entry>0)){ out.innerHTML='<span class="t-muted">Enter your entry price.</span>'; clearChk(); return; }
+  if(!(sl>0)){ out.innerHTML='<span class="t-muted">Enter your stop-loss price.</span>'; clearChk(); return; }
+  const ok = dir==='LONG' ? sl<entry : sl>entry;
+  if(!ok){ out.innerHTML=`<span class="t-warn">For a ${dir==='LONG'?'long':'short'}, the stop-loss must be ${dir==='LONG'?'below':'above'} your entry.</span>`; clearChk(); return; }
+  const d=pdec(pair), ps=pipSize(pair);
+  const risk=Math.abs(entry-sl);
+  const tp = dir==='LONG' ? entry+rr*risk : entry-rr*risk;
+  const riskPips=(risk/ps).toFixed(1), rewPips=(rr*risk/ps).toFixed(1);
+  out.innerHTML =
+    `<div class="t-row t-sl"><span>Stop loss</span><b>${sl.toFixed(d)}</b><span class="t-pips">${riskPips} pips risk</span></div>`+
+    `<div class="t-row t-tp"><span>Take profit</span><b>${tp.toFixed(d)}</b><span class="t-pips">${rewPips} pips · ${rr}R</span></div>`;
+  assessEntry(card);
+}
+
+// Mechanical sanity-check: does this entry make sense for the setup?
+function assessEntry(card){
+  const chk=card.querySelector('.trade-check'); if(!chk) return;
+  const pair=card.dataset.pair, d=pdec(pair), ps=pipSize(pair),
+        dir=card.querySelector('.t-dir').value,
+        entry=parseFloat(card.querySelector('.t-entry').value),
+        sl=parseFloat(card.querySelector('.t-sl-in').value),
+        R=parseFloat(card.dataset.res), S=parseFloat(card.dataset.sup),
+        price=parseFloat(card.dataset.price), trend=card.dataset.trend;
+  if(!(entry>0) || !(sl>0)){ chk.className='trade-check'; chk.innerHTML=''; return; }
+  const risk=Math.abs(entry-sl);
+  const slOk = dir==='LONG' ? sl<entry : sl>entry;
+  if(!(risk>0) || !slOk){ chk.className='trade-check'; chk.innerHTML=''; return; }  // computeTrade shows the stop-side error
+
+  const target = dir==='LONG' ? R : S, tName = dir==='LONG' ? 'resistance' : 'support';
+  const reward = dir==='LONG' ? (target-entry) : (entry-target);
+  const rr = reward/risk;
+  const counter = (dir==='LONG' && trend==='DOWN') || (dir==='SHORT' && trend==='UP');
+  const farPips = Math.abs(entry-price)/ps, stopPips = risk/ps;
+
+  const rewPips=(reward/ps).toFixed(1), rkPips=(risk/ps).toFixed(1);
+  const verb = dir==='LONG' ? 'up to' : 'down to';
+  const into = dir==='LONG' ? 'buying right into resistance' : 'selling right into support';
+  let level, msg;
+  if(reward<=0){
+    level='bad';
+    msg=`Your entry is already ${dir==='LONG'?'at/above':'at/below'} the nearest ${tName} (${target.toFixed(d)}) — no room left ${dir==='LONG'?'above':'below'} to aim for. That's chasing a move that's already run.`;
+  } else if(rr<1){
+    level='bad';
+    msg=`Only ~${rewPips} pips ${verb} the nearest ${tName} ${target.toFixed(d)} (your first target), vs a ~${rkPips}-pip stop — about ${rr.toFixed(1)}R. You'd be ${into}; too little room to profit. The target, not your entry, is what's too close.`;
+  } else if(rr<2){
+    level='warn';
+    msg=`~${rewPips} pips ${verb} the nearest ${tName} ${target.toFixed(d)} vs a ~${rkPips}-pip stop — about ${rr.toFixed(1)}R. Price must break that level to reach a 2R target.`;
+  } else {
+    level='good';
+    msg=`~${rewPips} pips of room ${verb} the nearest ${tName} ${target.toFixed(d)} vs a ~${rkPips}-pip stop — about ${rr.toFixed(1)}R. Reasonable location.`;
+  }
+  let extra='';
+  if(counter){ if(level==='good') level='warn'; extra+=` Counter-trend: the 4h trend is ${trend} — you're going against it.`; }
+  if(farPips > stopPips*2){ if(level==='good') level='warn'; extra+=` Your entry is ${farPips.toFixed(0)} pips from current price (${price.toFixed(d)}) — you're anticipating a move, not entering at market.`; }
+
+  const icon = level==='good'?'✅':level==='warn'?'⚠️':'⛔';
+  chk.className='trade-check '+level;
+  chk.innerHTML = `<b>${icon} Entry check:</b> ${msg}${extra}`;
+}
+
+// Minimal markdown → HTML for the briefing (headings, bold, Outlook lines).
+function formatBriefing(md){
+  const out = [];
+  (md||'').split('\n').forEach(line=>{
+    let l = line.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+    l = l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+    const h2 = l.match(/^#{1,3}\s+(.*)$/);
+    if(h2){ out.push(`<h3 class="bf-h">${h2[1]}</h3>`); return; }
+    if(/^\s*Outlook:/.test(l)){ out.push(`<p class="bf-out">${l.replace(/^\s*/,'')}</p>`); return; }
+    if(l.trim()==='') { out.push('<div class="bf-gap"></div>'); return; }
+    out.push(`<p class="bf-p">${l}</p>`);
+  });
+  return out.join('');
+}
+
+function esc(s){ return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function ageLabel(d){
+  if(d===null||d===undefined) return '';
+  if(d<=0) return 'today';
+  if(d===1) return '1d ago';
+  if(d<30) return d+'d ago';
+  return Math.round(d/30)+'mo ago';
+}
+
+function renderNews(news){
+  if(news===undefined || news===null) return '';  // non-triggered pair: news not fetched
+  if(!news.length)
+    return `<div class="news"><div class="news-h">News</div><div class="news-empty">No recent headlines.</div></div>`;
+  const items = news.map(n=>{
+    const meta = [n.publisher, ageLabel(n.age_days)].filter(Boolean).join(' · ');
+    const t = n.url
+      ? `<a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.title)}</a>`
+      : esc(n.title);
+    const stale = (n.age_days!=null && n.age_days>21) ? ' <span class="stale">dated</span>' : '';
+    return `<li><div class="news-t">${t}${stale}</div><div class="news-m">${esc(meta)}</div></li>`;
+  }).join('');
+  return `<div class="news"><div class="news-h">News <span class="news-sub">(fundamental backdrop)</span></div><ul>${items}</ul></div>`;
+}
+
+function renderCards(pairs){
+  const box = $('#cards'); box.innerHTML='';
+  pairs.forEach(p=>{
+    const el = document.createElement('div'); el.className='card';
+    if(!p.ok){
+      el.innerHTML = `<h3>${p.pair}</h3><div class="err">No data: ${p.error}</div>`+renderNews(p.news);
+      box.appendChild(el); return;
+    }
+    const dir = setupDir(p.setup);
+    const defDir = dir || (p.trend_4h==='UP' ? 'LONG' : 'SHORT');
+    const hint = dir ? `${dir} setup — type your entry`
+                     : `no live setup — set side &amp; entry to plan or manage a trade`;
+    const trade = `
+      <div class="trade${dir?' live':''}" data-pair="${p.pair}" data-stop="${p.suggested_stop_dist}"
+           data-price="${p.price}" data-res="${p.near_resistance}" data-sup="${p.near_support}" data-trend="${p.trend_4h}">
+        <div class="trade-h">Trade levels <span>(${hint})</span></div>
+        <div class="trade-in">
+          <label>Side<select class="t-dir">
+            <option value="LONG"${defDir==='LONG'?' selected':''}>Long</option>
+            <option value="SHORT"${defDir==='SHORT'?' selected':''}>Short</option>
+          </select></label>
+          <label>Entry<input class="t-entry" type="number" step="any" value="${p.price}"></label>
+          <label>Stop-loss<input class="t-sl-in" type="number" step="any"></label>
+          <label>R:R <span class="rec">rec. 2</span><input class="t-rr" type="number" step="any" value="2"></label>
+        </div>
+        <div class="trade-out"></div>
+        <button class="t-log" type="button">＋ Log this trade</button>
+        <div class="trade-check"></div>
+        <div class="trade-hint">Stop-loss is prefilled from the ATR distance. <b>Already in a trade?</b> Type your real entry and stop-loss — the take-profit updates to your R:R (2R recommended). The check below is a mechanical sanity test of your entry, <b>not advice</b>.</div>
+      </div>`;
+    el.innerHTML = `
+      <h3>${p.pair} <span class="price">${p.price}</span></h3>
+      <div style="margin-bottom:8px">${badgeTrend(p.trend_4h)} ${badgeSetup(p.setup)} ${qualBadge(p)}</div>
+      <div class="row"><span class="k">Setup state</span><span>${p.setup}</span></div>
+      <div class="row"><span class="k">Resistance (20-bar)</span><span>${p.near_resistance}</span></div>
+      <div class="row"><span class="k">Support (20-bar)</span><span>${p.near_support}</span></div>
+      <div class="row"><span class="k">ATR(15m)</span><span>${p.atr_15m}</span></div>
+      <div class="row"><span class="k">Suggested stop dist</span><span>${p.suggested_stop_dist}</span></div>
+      ${trade}
+      ${renderNews(p.news)}`;
+    box.appendChild(el);
+    const card=el.querySelector('.trade');
+    prefillSL(card);
+    card.querySelector('.t-dir').addEventListener('change',()=>{ prefillSL(card); computeTrade(card); });
+    card.querySelectorAll('.t-entry,.t-sl-in,.t-rr').forEach(i=>i.addEventListener('input',()=>computeTrade(card)));
+    card.querySelector('.t-log').addEventListener('click',()=>logFromCard(card));
+    computeTrade(card);
+  });
+}
+
+async function scan(){
+  const btn=$('#scanBtn'); btn.disabled=true; $('#spin').style.display='inline';
+  const boost = $('#boostToggle').checked;
+  $('#spin').textContent = boost
+    ? 'Scanning all pairs… deep AI analysis of any triggered setups…'
+    : 'Scanning all pairs… AI writes up any triggered setups…';
+  try{
+    const r = await fetch('/scan',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({boost})});
+    const d = await r.json();
+    $('#stamp').textContent = 'Last scan: '+d.generated_at
+      +(d.scanned_count!=null?(' · '+d.triggered_count+' of '+d.scanned_count+' pairs triggered'):'')
+      +(d.model?(' · '+d.model):'');
+    renderCards(d.pairs);
+    renderWatch(d.pairs);
+    // keep the logbook's pair dropdown in sync with the scanned pairs
+    (function(){
+      const names=(d.pairs||[]).filter(p=>p.ok).map(p=>p.pair);
+      const sel=$('#lbPair');
+      if(sel && names.length){ const cur=sel.value;
+        sel.innerHTML=names.map(p=>`<option>${p}</option>`).join('');
+        if(names.includes(cur)) sel.value=cur; }
+    })();
+    $('#briefingBox').style.display='block';
+    $('#briefingText').innerHTML = formatBriefing(d.briefing.text);
+    const mn=$('#mockNote');
+    if(d.briefing.mock){
+      mn.style.display='block'; mn.className='mock';
+      mn.textContent='⚠ Mock mode — Claude was not reached (no API key and Claude Code CLI unavailable, or the call failed). Showing placeholder text.';
+    } else {
+      mn.style.display='none';
+      const via = d.briefing.via==='cli' ? 'via your Claude subscription (Claude Code CLI)'
+                : d.briefing.via==='api' ? 'via the Anthropic API' : '';
+      if(via){ mn.style.display='block'; mn.className='source'; mn.textContent='Briefing written by Claude '+via+'.'; }
+    }
+  }catch(e){
+    $('#stamp').textContent = 'Scan failed: '+e;
+  }finally{
+    btn.disabled=false; $('#spin').style.display='none';
+  }
+}
+$('#scanBtn').addEventListener('click', scan);
+
+// AI Boost toggle — remember the choice, show the note when on
+(function(){
+  const t=$('#boostToggle'), note=$('#boostNote');
+  try{ t.checked = localStorage.getItem('ms_boost')==='1'; }catch(e){}
+  const sync=()=>{ note.style.display = t.checked ? 'block' : 'none';
+    try{ localStorage.setItem('ms_boost', t.checked?'1':'0'); }catch(e){} };
+  t.addEventListener('change', sync); sync();
+})();
+
+// --- levels to watch (read-only guidance from the latest scan) ---
+function pipSize(pair){ return (pair.includes('JPY')||pair.includes('HUF')) ? 0.01 : 0.0001; }
+function fmt(pair, v){ return (v==null||isNaN(v)) ? '–' : Number(v).toFixed(pdec(pair)); }
+
+function renderWatch(pairs){
+  const box = $('#watchList'); box.innerHTML='';
+  const oks = pairs.filter(p=>p.ok);
+  // Triggered (live) setups first — with ~40 pairs the actionable ones stay on top.
+  oks.sort((a,b)=>(setupDir(b.setup)?1:0)-(setupDir(a.setup)?1:0));
+  if(!oks.length){ box.innerHTML='<div class="al-empty">No data in the latest scan.</div>'; return; }
+  oks.forEach(p=>{
+    const R=p.near_resistance, S=p.near_support, stop=p.suggested_stop_dist,
+          dir=setupDir(p.setup), pair=p.pair;
+    let rows=[];
+    if(dir){
+      const entry=p.price;
+      const sl = dir==='LONG' ? entry-stop : entry+stop;
+      const tp = dir==='LONG' ? entry+2*stop : entry-2*stop;
+      const voidLvl = dir==='LONG' ? S : R;
+      rows.push(['🔔 Actionable',
+        `${dir} setup is live now. If you take it near <b>${fmt(pair,entry)}</b> → stop-loss <b>${fmt(pair,sl)}</b>, take-profit (2R) <b>${fmt(pair,tp)}</b>. Set these on your platform.`]);
+      rows.push(['Bail out',
+        `If price closes back ${dir==='LONG'?'below':'above'} <b>${fmt(pair,voidLvl)}</b>, the setup has failed — close or don't enter.`]);
+    } else if(p.trend_4h==='UP'){
+      rows.push(['Watch for long', `Support <b>${fmt(pair,S)}</b> — a pullback that holds here is where a long can trigger. Wait for the trigger; don't pre-empt.`]);
+      rows.push(['If it breaks up', `Above resistance <b>${fmt(pair,R)}</b> → uptrend continues.`]);
+      rows.push(['If it breaks down', `A sustained move below <b>${fmt(pair,S)}</b> → bias flips down; stand aside.`]);
+    } else {
+      rows.push(['Watch for short', `Resistance <b>${fmt(pair,R)}</b> — a pullback that holds here is where a short can trigger. Wait for the trigger; don't pre-empt.`]);
+      rows.push(['If it breaks down', `Below support <b>${fmt(pair,S)}</b> → downtrend continues.`]);
+      rows.push(['If it breaks up', `A sustained move above <b>${fmt(pair,R)}</b> → bias flips up; stand aside.`]);
+    }
+    const el=document.createElement('div'); el.className='watch-item'+(dir?' live':'');
+    el.innerHTML =
+      `<div class="watch-head"><b>${pair}</b> <span class="watch-price">${fmt(pair,p.price)}</span> `+
+      `${badgeTrend(p.trend_4h)} ${dir?badgeSetup(p.setup):'<span class="badge b-wait">waiting</span>'}</div>`+
+      rows.map(r=>`<div class="watch-row"><span class="watch-k">${r[0]}</span><span class="watch-v">${r[1]}</span></div>`).join('');
+    box.appendChild(el);
+  });
+}
+
+// --- trade logbook (saved to a file on this machine via /log) ---
+let LOG = {start_balance:260, trades:[]};
+
+async function loadLog(){
+  try{ const r=await fetch('/log'); LOG=await r.json(); }catch(e){}
+  if(!Array.isArray(LOG.trades)) LOG.trades=[];
+  renderLog();
+}
+async function saveLog(){
+  try{ await fetch('/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(LOG)}); }
+  catch(e){}
+  renderLog();
+}
+function eur(n){ return (n<0?'-€':'€')+Math.abs(n).toFixed(2); }
+
+function renderLog(){
+  const start=+LOG.start_balance||0;
+  const closed=LOG.trades.filter(t=>t.pnl!==null && t.pnl!==undefined && t.pnl!=='');
+  const net=closed.reduce((s,t)=>s+(+t.pnl||0),0);
+  const bal=start+net;
+  const wins=closed.filter(t=>+t.pnl>0).length, losses=closed.filter(t=>+t.pnl<0).length;
+  const wr=closed.length?Math.round(wins/closed.length*100):0;
+  $('#lbBal').textContent=eur(bal);
+  $('#lbBal').className='lb-bal '+(net>0?'up':net<0?'down':'');
+  $('#lbNet').textContent=(net>=0?'+':'')+eur(net).replace('€','€')+' net';
+  $('#lbNet').className='lb-net '+(net>0?'up':net<0?'down':'');
+  if($('#lbStart')!==document.activeElement) $('#lbStart').value=start;
+  $('#lbStats').innerHTML=
+    `<span><b>${LOG.trades.length}</b> trades</span>`+
+    `<span class="up"><b>${wins}</b> W</span>`+
+    `<span class="down"><b>${losses}</b> L</span>`+
+    `<span><b>${wr}%</b> win rate</span>`;
+  const box=$('#lbList'); box.innerHTML='';
+  if(!LOG.trades.length){ box.innerHTML='<div class="al-empty">No trades logged yet.</div>'; return; }
+  [...LOG.trades].reverse().forEach(t=>{
+    const open=(t.pnl===null||t.pnl===undefined||t.pnl==='');
+    const pnl=+t.pnl;
+    const res=open?'<span class="lb-res open">OPEN</span>'
+             :pnl>0?'<span class="lb-res win">WIN</span>'
+             :pnl<0?'<span class="lb-res loss">LOSS</span>'
+             :'<span class="lb-res">B/E</span>';
+    const el=document.createElement('div'); el.className='lb-item'+(open?' open':'');
+    el.innerHTML=
+      `<span class="lb-date">${esc(t.date||'')}</span>`+
+      `<span class="lb-pair">${esc(t.pair||'')}</span>`+
+      `<span class="al-side ${t.side}">${esc(t.side||'')}</span>`+
+      `<span class="lb-entry">@ ${esc(String(t.entry||''))}</span>`+
+      (t.note?`<span class="lb-note">${esc(t.note)}</span>`:'')+
+      res+
+      `<span class="lb-pnl ${open?'':pnl>0?'up':pnl<0?'down':''}">`+
+        `<input class="lb-pnl-in" type="number" step="any" value="${open?'':t.pnl}" placeholder="P/L €" data-id="${t.id}">`+
+      `</span>`+
+      `<button class="al-del" title="Delete" data-id="${t.id}">✕</button>`;
+    box.appendChild(el);
+  });
+  box.querySelectorAll('.lb-pnl-in').forEach(i=>i.addEventListener('change',()=>{
+    const t=LOG.trades.find(x=>x.id==i.dataset.id); if(!t) return;
+    t.pnl = i.value===''?null:parseFloat(i.value); saveLog();
+  }));
+  box.querySelectorAll('.al-del').forEach(b=>b.addEventListener('click',()=>{
+    LOG.trades=LOG.trades.filter(x=>x.id!=b.dataset.id); saveLog();
+  }));
+}
+
+// Prefill the logbook form from a pair card's trade calculator.
+function logFromCard(card){
+  $('#lbPair').value = card.dataset.pair;
+  $('#lbSide').value = card.querySelector('.t-dir').value==='LONG' ? 'Long' : 'Short';
+  $('#lbEntry').value = card.querySelector('.t-entry').value;
+  $('#lbPnl').value = '';
+  $('#lbNote').value = '';
+  $('#lbDate').value = new Date().toISOString().slice(0,10);
+  const lb=document.querySelector('.logbook');
+  lb.scrollIntoView({behavior:'smooth', block:'center'});
+  lb.classList.add('flash'); setTimeout(()=>lb.classList.remove('flash'), 1400);
+  $('#lbNote').focus();
+}
+
+function addTrade(){
+  const entry=parseFloat($('#lbEntry').value);
+  if(!(entry>0)){ $('#lbEntry').focus(); return; }
+  const pnlRaw=$('#lbPnl').value.trim();
+  LOG.trades.push({
+    id:Date.now()+''+Math.floor(Math.random()*1000),
+    date:$('#lbDate').value||new Date().toISOString().slice(0,10),
+    pair:$('#lbPair').value, side:$('#lbSide').value,
+    entry, pnl: pnlRaw===''?null:parseFloat(pnlRaw), note:$('#lbNote').value.trim(),
+  });
+  $('#lbEntry').value=''; $('#lbPnl').value=''; $('#lbNote').value='';
+  saveLog();
+}
+
+// wire up logbook
+$('#lbPair').innerHTML = ['EUR/USD','GBP/USD','USD/JPY','USD/CAD','AUD/USD'].map(p=>`<option>${p}</option>`).join('');
+$('#lbDate').value=new Date().toISOString().slice(0,10);
+$('#lbAdd').addEventListener('click', addTrade);
+$('#lbStart').addEventListener('change', ()=>{ LOG.start_balance=parseFloat($('#lbStart').value)||0; saveLog(); });
+loadLog();
+</script>
+</body>
+</html>

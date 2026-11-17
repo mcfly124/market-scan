@@ -1,0 +1,19 @@
+# Secrets & personal data — NEVER commit these
+.env
+env
+*.key
+
+# Your money record (personal)
+trades.json
+
+# Watcher de-dup state (ephemeral; GitHub Actions cache handles it)
+watcher_state.json
+
+# Python / venv
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

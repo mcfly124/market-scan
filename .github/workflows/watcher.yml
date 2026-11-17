@@ -1,0 +1,56 @@
+name: FX setup watcher
+
+# Runs on GitHub's servers (NOT your Mac) every ~15 min, 24/7.
+# Zero Claude usage — detection is pure Python. NOT financial advice.
+on:
+  schedule:
+    # Every 15 minutes, UTC. GitHub can delay scheduled runs a few minutes
+    # under load — fine, since the price data is already ~15 min delayed.
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}   # adds a manual "Run workflow" button for testing
+
+concurrency:
+  group: fx-watcher
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Restore the de-dup state from the previous run so we only ping on
+      # NEW setups. restore-keys grabs the most recent prior cache.
+      - name: Restore watcher state
+        uses: actions/cache/restore@v4
+        with:
+          path: watcher_state.json
+          key: fx-watcher-state-${{ github.run_id }}
+          restore-keys: |
+            fx-watcher-state-
+
+      - name: Run watcher
+        env:
+          # Add ONE push backend as repo Secrets (Settings -> Secrets and
+          # variables -> Actions). Telegram wins if both are set.
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RR_MIN: "1.5"
+        run: python watcher.py
+
+      - name: Save watcher state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: watcher_state.json
+          key: fx-watcher-state-${{ github.run_id }}
