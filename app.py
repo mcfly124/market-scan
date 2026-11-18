@@ -68,6 +68,47 @@ PAIRS = {
     "EUR/SEK": "EURSEK=X", "EUR/HUF": "EURHUF=X",
 }
 
+# US stock-index futures (trade nearly 24h, so intraday data is continuous like
+# FX; these track what Trading 212 index CFDs follow). yfinance may be patchy on
+# some — analyze_pair() degrades gracefully.
+INDICES = {
+    "S&P 500": "ES=F",
+    "Nasdaq 100": "NQ=F",
+    "Dow 30": "YM=F",
+    "Russell 2000": "RTY=F",
+}
+
+# 20 liquid US large-caps across sectors. Note: single stocks carry gap/earnings
+# risk the FX engine can't see — treat signals near earnings with extra caution.
+STOCKS = {
+    "AAPL": "AAPL", "MSFT": "MSFT", "NVDA": "NVDA", "AMZN": "AMZN",
+    "GOOGL": "GOOGL", "META": "META", "TSLA": "TSLA", "AMD": "AMD",
+    "AVGO": "AVGO", "NFLX": "NFLX", "JPM": "JPM", "V": "V",
+    "MA": "MA", "UNH": "UNH", "XOM": "XOM", "JNJ": "JNJ",
+    "WMT": "WMT", "PG": "PG", "KO": "KO", "DIS": "DIS",
+}
+
+# Crypto is scanned differently from everything else: NOT the 15m pullback
+# engine (which has no edge), but a slow DAILY TREND REGIME (price vs its
+# 100-day average) — the one approach that actually backtested well
+# (~0.96 Sharpe long/cash on BTC). Highest risk, deepest drawdowns. See
+# analyze_crypto_trend().
+CRYPTO = {
+    "Bitcoin": "BTC-USD", "Ethereum": "ETH-USD", "Solana": "SOL-USD",
+    "BNB": "BNB-USD", "XRP": "XRP-USD", "Cardano": "ADA-USD",
+    "Dogecoin": "DOGE-USD", "Litecoin": "LTC-USD",
+}
+
+# market key -> (asset class, instrument dict). "fx" stays the default and is
+# what the phone watcher scans.
+MARKETS = {
+    "fx": ("fx", PAIRS),
+    "index": ("index", INDICES),
+    "stock": ("stock", STOCKS),
+}
+# name -> symbol across every market (for the on-demand briefing's news lookup)
+ALL_SYMBOLS = {**PAIRS, **INDICES, **STOCKS, **CRYPTO}
+
 # Trade logbook is stored in a JSON file next to this app so it survives
 # browser clears and restarts. It's the user's own money record.
 TRADES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "trades.json")
@@ -160,8 +201,10 @@ def fetch_news(symbol, limit=4):
     return items[:limit]
 
 
-def analyze_pair(name, symbol):
-    """Return an objective facts dict for one pair, or an error note."""
+def analyze_pair(name, symbol, cls="fx"):
+    """Return an objective facts dict for one instrument, or an error note.
+    cls is the asset class ("fx" | "index" | "stock") — it only changes display
+    rounding and (client-side) whether distances are shown in pips or percent."""
     import pandas as pd
     import yfinance as yf
 
@@ -227,17 +270,20 @@ def analyze_pair(name, symbol):
         def pips(x):
             return round(x / pip, 1)
 
+        rp = 5 if cls == "fx" else 2  # price decimals: fx fine-grained, stocks/indices 2dp
+
         return {
             "pair": name,
             "ok": True,
-            "price": round(price, 5),
+            "cls": cls,
+            "price": round(price, rp),
             "trend_4h": "UP" if trend_up else "DOWN",
             "setup": setup,
-            "ema20_15m": round(ema20_v, 5),
-            "atr_15m": round(atr_v, 5),
-            "suggested_stop_dist": round(1.5 * atr_v, 5),
-            "near_resistance": round(swing_hi, 5),
-            "near_support": round(swing_lo, 5),
+            "ema20_15m": round(ema20_v, rp),
+            "atr_15m": round(atr_v, rp),
+            "suggested_stop_dist": round(1.5 * atr_v, rp),
+            "near_resistance": round(swing_hi, rp),
+            "near_support": round(swing_lo, rp),
             "pips": {
                 "atr": pips(atr_v),
                 "suggested_stop": pips(1.5 * atr_v),
@@ -248,7 +294,174 @@ def analyze_pair(name, symbol):
             },
         }
     except Exception as e:  # network blocked, rate limited, etc.
-        return {"pair": name, "ok": False, "error": str(e)}
+        return {"pair": name, "ok": False, "cls": cls, "error": str(e)}
+
+
+# US stocks + index ETFs for the Open-Breakout strategy (9:30 ET open).
+OPENBREAK = {
+    "S&P 500 (SPY)": "SPY", "Nasdaq 100 (QQQ)": "QQQ",
+    "Russell 2000 (IWM)": "IWM", "Dow 30 (DIA)": "DIA",
+    "Apple": "AAPL", "Tesla": "TSLA", "Nvidia": "NVDA", "AMD": "AMD",
+    "Microsoft": "MSFT", "Alphabet": "GOOGL", "Meta": "META", "Amazon": "AMZN",
+}
+
+
+def _pivots(h, l, c):
+    """Classic daily pivots from the prior session — these are the S/R levels
+    used as take-profit targets."""
+    p = (h + l + c) / 3.0
+    return {"R3": h + 2 * (p - l), "R2": p + (h - l), "R1": 2 * p - l,
+            "P": p, "S1": 2 * p - h, "S2": p - (h - l), "S3": l - 2 * (p - h)}
+
+
+def analyze_open_breakout(name, symbol):
+    """Market-open breakout (the one intraday strategy that backtested with an
+    edge: +0.10R, PF 1.47, when filtered by the 200-EMA trend). Mechanics:
+      - opening range = high/low of the first 15 min after the 9:30 ET open;
+      - take only a break in the direction of the 200-EMA (5m) trend;
+      - stop = opposite side of the range; target = nearest daily pivot.
+    Returns the live state for the most recent session. NOT financial advice."""
+    import pandas as pd
+    import yfinance as yf
+    try:
+        d = yf.download(symbol, period="5d", interval="5m",
+                        progress=False, auto_adjust=True, prepost=False)
+        if d.empty:
+            raise ValueError("no data returned")
+        if isinstance(d.columns, pd.MultiIndex):
+            d.columns = d.columns.get_level_values(0)
+        d = d.dropna()
+        try:
+            d.index = d.index.tz_convert("America/New_York")
+        except Exception:
+            pass
+        d = d.assign(ema=d["Close"].ewm(span=200, adjust=False).mean())
+        days = sorted({ts.date() for ts in d.index})
+        if len(days) < 2:
+            raise ValueError("not enough sessions")
+        today, prev = days[-1], days[-2]
+        g = d[[ts.date() == today for ts in d.index]]
+        pg = d[[ts.date() == prev for ts in d.index]]
+        if len(g) < 1 or len(pg) < 1:
+            raise ValueError("missing session data")
+
+        H, L, C = float(pg["High"].max()), float(pg["Low"].min()), float(pg["Close"].iloc[-1])
+        piv = _pivots(H, L, C)
+        price = float(g["Close"].iloc[-1])
+        ema_v = float(g["ema"].iloc[-1])
+        bias = "UP" if price > ema_v else "DOWN"
+
+        # opening range = first 15 min (first three 5-min bars)
+        if len(g) < 3:
+            return {"pair": name, "ok": True, "cls": "openbreak", "symbol": symbol,
+                    "price": round(price, 2), "state": "pre",
+                    "headline": "Opening range still forming (first 15 min).",
+                    "bias": bias}
+        orb = g.iloc[:3]
+        or_hi, or_lo = float(orb["High"].max()), float(orb["Low"].min())
+        after = g.iloc[3:]
+
+        trig = None
+        for i in range(len(after)):
+            if float(after["High"].iloc[i]) >= or_hi:
+                trig = 1
+                break
+            if float(after["Low"].iloc[i]) <= or_lo:
+                trig = -1
+                break
+
+        out = {"pair": name, "ok": True, "cls": "openbreak", "symbol": symbol,
+               "price": round(price, 2), "or_hi": round(or_hi, 2), "or_lo": round(or_lo, 2),
+               "ema200": round(ema_v, 2), "bias": bias,
+               "pivP": round(piv["P"], 2)}
+
+        aligned = (trig == 1 and bias == "UP") or (trig == -1 and bias == "DOWN")
+        if trig is None:
+            out["state"] = "waiting"
+            out["headline"] = (f"Range set ({or_lo:.2f}–{or_hi:.2f}). Waiting for a break; "
+                               f"trend bias is {'up → longs only' if bias=='UP' else 'down → shorts only'}.")
+            return out
+        if not aligned:
+            out["state"] = "skip"
+            out["headline"] = (f"Broke {'up' if trig==1 else 'down'}, but against the "
+                               f"{bias} trend — skip (counter-trend breakouts had no edge).")
+            return out
+
+        # a valid, trend-aligned signal
+        if trig == 1:
+            entry, stop = or_hi, or_lo
+            above = [v for v in piv.values() if v > entry]
+            tp = min(above) if above else None
+        else:
+            entry, stop = or_lo, or_hi
+            below = [v for v in piv.values() if v < entry]
+            tp = max(below) if below else None
+        risk = abs(entry - stop)
+        rr = (abs(tp - entry) / risk) if (tp and risk > 0) else None
+        out.update({
+            "state": "long" if trig == 1 else "short",
+            "dir": "LONG" if trig == 1 else "SHORT",
+            "entry": round(entry, 2), "stop": round(stop, 2),
+            "tp": round(tp, 2) if tp else None,
+            "rr": round(rr, 2) if rr else None,
+            "headline": (f"{'LONG' if trig==1 else 'SHORT'} breakout, with the {bias} trend. "
+                         f"Entry {entry:.2f}, stop {stop:.2f}"
+                         + (f", target {tp:.2f} ({rr:.1f}R)." if tp else ".")),
+        })
+        return out
+    except Exception as e:
+        return {"pair": name, "ok": False, "cls": "openbreak", "error": str(e)}
+
+
+def _cdp(v):
+    """Sensible decimals for wildly different crypto prices (BTC vs DOGE)."""
+    a = abs(v)
+    if a >= 100:
+        return 2
+    if a >= 1:
+        return 4
+    return 6
+
+
+def analyze_crypto_trend(name, symbol):
+    """DAILY TREND REGIME for one coin — NOT the 15m engine.
+
+    The only rule that backtested with a real edge (long/cash, ~0.96 Sharpe on
+    BTC): is today's price above or below its 100-day average? It predicts
+    nothing; it reacts. 'IN' = above (ride the uptrend); 'OUT' = below (sit in
+    cash). Also reports the 200-day line and the fall from the 1-year high so
+    the drawdown risk is visible. NOT financial advice."""
+    import pandas as pd
+    import yfinance as yf
+    try:
+        d = yf.download(symbol, period="2y", interval="1d",
+                        progress=False, auto_adjust=True)
+        if d.empty:
+            raise ValueError("no data returned")
+        if isinstance(d.columns, pd.MultiIndex):
+            d.columns = d.columns.get_level_values(0)
+        close = d["Close"].dropna()
+        if len(close) < 110:
+            raise ValueError("not enough history")
+        price = float(close.iloc[-1])
+        sma100 = float(close.rolling(100).mean().iloc[-1])
+        sma200 = float(close.rolling(200).mean().iloc[-1]) if len(close) >= 200 else None
+        hi_1y = float(close.iloc[-365:].max())
+        rp = _cdp(price)
+        above = price > sma100
+        return {
+            "pair": name, "ok": True, "cls": "crypto", "mode": "trend",
+            "price": round(price, rp),
+            "sma100": round(sma100, rp),
+            "sma200": round(sma200, rp) if sma200 else None,
+            "regime": "UP" if above else "DOWN",
+            "in_market": bool(above),
+            "dist100_pct": round((price - sma100) / sma100 * 100, 1),
+            "dist200_pct": round((price - sma200) / sma200 * 100, 1) if sma200 else None,
+            "from_high_pct": round((price - hi_1y) / hi_1y * 100, 1),
+        }
+    except Exception as e:
+        return {"pair": name, "ok": False, "cls": "crypto", "error": str(e)}
 
 
 # ----------------------------------------------------------------------
@@ -491,45 +704,85 @@ def prices():
 
 @app.route("/scan", methods=["POST"])
 def scan():
-    boost = bool((request.get_json(silent=True) or {}).get("boost"))
-    # 1) Technical analysis for all pairs. Each analyze_pair is I/O-bound
-    #    (yfinance downloads), so threads overlap the waiting — but we CAP the
-    #    worker count so a large pair list doesn't trip Yahoo's rate limiting.
-    items = list(PAIRS.items())
+    """Scan one market. PURE CODE — no Claude call, so a scan costs ZERO tokens.
+    The written briefing is a separate, opt-in call (see /briefing)."""
+    body = request.get_json(silent=True) or {}
+    market = body.get("market", "fx")
+
+    # Crypto is a different beast: slow DAILY TREND REGIME (price vs 100-day
+    # average), not the 15m engine. It's the only thing that backtested with an
+    # edge — and the highest risk. Returns a 'trend' payload, not setups.
+    if market == "crypto":
+        items = list(CRYPTO.items())
+        with ThreadPoolExecutor(max_workers=min(6, len(items))) as pool:
+            facts = list(pool.map(lambda it: analyze_crypto_trend(it[0], it[1]), items))
+        in_n = len([f for f in facts if f.get("ok") and f.get("in_market")])
+        return jsonify({
+            "generated_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+            "market": "crypto", "mode": "trend",
+            "pairs": facts,
+            "in_count": in_n,
+            "scanned_count": len([f for f in facts if f.get("ok")]),
+        })
+
+    if market == "openbreak":
+        items = list(OPENBREAK.items())
+        with ThreadPoolExecutor(max_workers=min(6, len(items))) as pool:
+            facts = list(pool.map(lambda it: analyze_open_breakout(it[0], it[1]), items))
+        sig = len([f for f in facts if f.get("ok") and f.get("state") in ("long", "short")])
+        return jsonify({
+            "generated_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+            "market": "openbreak", "mode": "openbreak",
+            "pairs": facts,
+            "signal_count": sig,
+            "scanned_count": len([f for f in facts if f.get("ok")]),
+        })
+
+    cls, universe = MARKETS.get(market, MARKETS["fx"])
+
+    # Technical analysis for the market's instruments. I/O-bound (yfinance), so
+    # threads overlap the waiting; cap workers to avoid Yahoo rate limiting.
+    items = list(universe.items())
     with ThreadPoolExecutor(max_workers=min(6, len(items))) as pool:
-        facts = list(pool.map(lambda it: analyze_pair(it[0], it[1]), items))
+        facts = list(pool.map(lambda it: analyze_pair(it[0], it[1], cls), items))
 
-    # 2) Only the TRIGGERED (actionable) pairs get news and go to Claude. With
-    #    ~40 pairs this keeps the scan fast and your subscription usage low —
-    #    the cards below still show every pair's code-computed state.
     triggered = [f for f in facts if f.get("ok") and "triggered" in f.get("setup", "")]
-
-    if triggered:
-        tsyms = [PAIRS[f["pair"]] for f in triggered]
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            news_lists = list(pool.map(fetch_news, tsyms))
-        for fact, news in zip(triggered, news_lists):
-            fact["news"] = news
-        briefing = claude_briefing(triggered, boost=boost)
-    else:
-        # No setups -> don't call Claude at all (saves usage). Honest message.
-        ok_n = len([f for f in facts if f.get("ok")])
-        briefing = {
-            "mock": False, "via": "none", "boost": boost,
-            "text": (f"No setups triggered across {ok_n} pairs right now — "
-                     "nothing actionable. The cards below show each pair's "
-                     "trend and state in code; wait for a pullback to EMA20 to "
-                     "trigger. Not financial advice."),
-        }
-
     return jsonify({
         "generated_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "market": market,
         "pairs": facts,
-        "briefing": briefing,
         "triggered_count": len(triggered),
         "scanned_count": len([f for f in facts if f.get("ok")]),
-        "model": MODEL if ANTHROPIC_API_KEY else None,
     })
+
+
+@app.route("/briefing", methods=["POST"])
+def briefing():
+    """On-demand written briefing (THIS is the only route that uses tokens).
+    The client POSTs the already-scanned facts; we fetch news for the triggered
+    ones and ask Claude to write it up."""
+    body = request.get_json(silent=True) or {}
+    boost = bool(body.get("boost"))
+    facts = body.get("pairs") or []
+    triggered = [f for f in facts if f.get("ok") and "triggered" in f.get("setup", "")]
+
+    if not triggered:
+        return jsonify({
+            "mock": False, "via": "none", "boost": boost,
+            "text": ("No setups triggered right now — nothing to write up. "
+                     "The cards show each instrument's state in code; wait for a "
+                     "pullback to EMA20 to trigger. Not financial advice."),
+        })
+
+    tsyms = [ALL_SYMBOLS.get(f["pair"]) for f in triggered]
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        news_lists = list(pool.map(lambda s: fetch_news(s) if s else [], tsyms))
+    for fact, news in zip(triggered, news_lists):
+        fact["news"] = news
+
+    result = claude_briefing(triggered, boost=boost)
+    result["model"] = MODEL if ANTHROPIC_API_KEY else None
+    return jsonify(result)
 
 
 if __name__ == "__main__":

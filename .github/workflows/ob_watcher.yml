@@ -1,0 +1,41 @@
+name: Open-breakout watcher
+
+# Runs on GitHub's servers (NOT your Mac) once each weekday around the US open,
+# loops internally every 45s through the 09:45-11:00 ET window, then exits.
+# Real-time Alpaca IEX data. Zero Claude usage. NOT financial advice.
+on:
+  schedule:
+    # Two starts so it works in both US DST seasons; the script itself exits
+    # immediately on the "wrong-season" run, so only one actually trades.
+    - cron: "40 13 * * 1-5"   # ~09:40 ET during US summer (EDT)
+    - cron: "40 14 * * 1-5"   # ~09:40 ET during US winter (EST)
+  workflow_dispatch: {}        # manual "Run workflow" button for testing
+
+concurrency:
+  group: ob-watcher
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120        # safety cap; the script exits after the window
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run open-breakout watcher
+        env:
+          # Add these as repo Secrets (Settings -> Secrets and variables -> Actions):
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          OB_POLL_SEC: "45"
+        run: python ob_watcher.py loop

@@ -51,6 +51,107 @@
   .qual.good{background:rgba(54,196,138,.15);color:var(--up)}
   .qual.warn{background:rgba(232,184,75,.15);color:var(--warn)}
   .qual.bad{background:rgba(229,112,90,.15);color:var(--down)}
+  /* tabs */
+  .tabs{display:flex;gap:6px;margin:4px 0 16px}
+  .tab-btn{background:var(--card);border:1px solid var(--line);color:var(--muted);
+    padding:9px 16px;border-radius:9px;cursor:pointer;font-size:14px;font-weight:600}
+  .tab-btn.active{background:var(--accent);color:#06101f;border-color:var(--accent)}
+  .tabs.markets{margin:0 0 8px}
+  .mkt-btn{background:var(--card);border:1px solid var(--line);color:var(--muted);
+    padding:9px 16px;border-radius:9px;cursor:pointer;font-size:14px;font-weight:600}
+  .mkt-btn.active{background:#11151c;color:var(--text);border-color:var(--accent)}
+  .brief-btn{background:transparent;border:1px dashed var(--line);color:var(--accent);
+    font-weight:600;font-size:13px;padding:10px 14px;border-radius:9px;cursor:pointer;margin-bottom:10px}
+  .brief-btn:hover{background:rgba(110,168,254,.08)}
+  .brief-sub{color:var(--muted);font-weight:400}
+  /* crypto daily-trend view */
+  .cx-note{background:#1a1206;border:1px solid #6b4a10;color:#e8c98a;
+    padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.5;margin-bottom:14px}
+  #cxList{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+  .cx{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;border-left:4px solid var(--line)}
+  .cx.in{border-left-color:var(--up,#36c48a)}
+  .cx.out{border-left-color:#e06b6b}
+  .cx-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .cx-name{font-weight:700;font-size:15px}
+  .cx-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .cx-badge.b-in{background:rgba(54,196,138,.16);color:#36c48a}
+  .cx-badge.b-out{background:rgba(224,107,107,.16);color:#e06b6b}
+  .cx-price{font-size:22px;font-weight:700;margin:8px 0 10px}
+  .cx-rows{display:flex;flex-direction:column;gap:5px;font-size:12.5px}
+  .cx-row{display:flex;align-items:baseline;gap:7px}
+  .cx-k{color:var(--muted);min-width:92px}
+  .cx-sub{margin-left:auto;font-weight:600}
+  .cx-sub.pos,.cx .pos{color:#36c48a}
+  .cx-sub.neg,.cx .neg{color:#e06b6b}
+  .cx-verdict{margin-top:10px;font-size:12.5px;color:var(--text);line-height:1.45;
+    border-top:1px solid var(--line);padding-top:9px}
+  /* open breakout */
+  .ob-note{background:#06131f;border:1px solid #1d4a6b;color:#9fd0ef;
+    padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.5;margin-bottom:14px}
+  #obList{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+  .ob{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;border-left:4px solid var(--line)}
+  .ob.ob-long{border-left-color:#36c48a}
+  .ob.ob-short{border-left-color:#e06b6b}
+  .ob.ob-wait{border-left-color:#e0b24c}
+  .ob.ob-skip,.ob.ob-pre{opacity:.72}
+  .ob-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .ob-name{font-weight:700;font-size:15px}
+  .ob-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .ob-badge.ob-long{background:rgba(54,196,138,.16);color:#36c48a}
+  .ob-badge.ob-short{background:rgba(224,107,107,.16);color:#e06b6b}
+  .ob-badge.ob-wait{background:rgba(224,178,76,.16);color:#e0b24c}
+  .ob-badge.ob-skip,.ob-badge.ob-pre{background:rgba(150,150,150,.16);color:var(--muted)}
+  .ob-price{font-size:22px;font-weight:700;margin:8px 0 10px}
+  .ob-rows{display:flex;flex-direction:column;gap:5px;font-size:12.5px}
+  .ob-row{display:flex;align-items:baseline;gap:7px}
+  .ob-k{color:var(--muted);min-width:132px}
+  .ob-sub{margin-left:auto;font-weight:700;color:var(--muted)}
+  .ob .pos{color:#36c48a}
+  .ob .neg{color:#e06b6b}
+  .ob-head{margin-top:10px;font-size:12.5px;color:var(--text);line-height:1.45;
+    border-top:1px solid var(--line);padding-top:9px}
+  .ob-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:14px;
+    background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px}
+  .ob-ctl label{font-weight:600}
+  .ob-ctl input,.ob-ctl select{background:var(--bg,#0b0b0e);color:var(--text);border:1px solid var(--line);
+    border-radius:7px;padding:5px 8px;font-size:13px;width:84px}
+  .ob-ctl-note{color:var(--muted);font-size:12px;flex:1 1 220px;line-height:1.4}
+  .ob-calc{margin-top:10px;border-top:1px dashed var(--line);padding-top:9px}
+  .ob-calc label{font-size:12px;color:var(--muted);font-weight:600;display:block}
+  .ob-entry{margin-top:4px;background:var(--bg,#0b0b0e);color:var(--text);border:1px solid var(--line);
+    border-radius:7px;padding:6px 8px;font-size:14px;width:120px}
+  .ob-calc-out{margin-top:8px;font-size:12.5px;line-height:1.5}
+  .ob-calc-out.ob-ok{color:var(--text)}
+  .ob-calc-out.ob-warn{color:#e0b24c}
+  .ob-calc-out.ob-bad{color:#e06b6b;font-weight:600}
+  /* signals (simple view) */
+  .sig-note{font-size:13px;color:var(--muted);background:var(--card);border:1px solid var(--line);
+    border-radius:10px;padding:11px 14px;margin-bottom:14px;line-height:1.5}
+  .sig-empty{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:22px;color:var(--muted);font-size:14px;line-height:1.55;text-align:center}
+  #sigList{display:flex;flex-direction:column;gap:12px}
+  .sig{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;border-left:5px solid var(--line)}
+  .sig.buy{border-left-color:var(--up)} .sig.sell{border-left-color:var(--down)}
+  .sig-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .sig-act{font-size:22px;font-weight:800;letter-spacing:.03em}
+  .sig.buy .sig-act{color:var(--up)} .sig.sell .sig-act{color:var(--down)}
+  .sig-pair{font-size:20px;font-weight:700}
+  .sig-rr{margin-left:auto;font-size:12px;color:var(--muted);background:#11151c;border:1px solid var(--line);padding:3px 10px;border-radius:999px}
+  .sig-why{font-size:13px;color:var(--muted);margin:8px 0 12px}
+  .sig-entry label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted)}
+  .sig-in{background:#11151c;border:1px solid var(--line);color:var(--text);padding:12px 14px;border-radius:9px;font-size:18px;width:100%;box-sizing:border-box}
+  .sig-out{margin-top:12px}
+  .sig-hint{font-size:12px;color:var(--muted)}
+  .sig-no{background:rgba(229,112,90,.12);border:1px solid rgba(229,112,90,.3);color:var(--down);
+    padding:11px 13px;border-radius:9px;font-size:13px;line-height:1.45}
+  .sig-yes{background:rgba(54,196,138,.12);border:1px solid rgba(54,196,138,.3);color:var(--up);
+    padding:11px 13px;border-radius:9px;font-size:13px;line-height:1.45;margin-bottom:10px}
+  .sig-levels{display:flex;gap:10px}
+  .sig-lv{flex:1;display:flex;flex-direction:column;gap:2px;background:#11151c;border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .sig-lv>span:first-child{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .sig-lv b{font-size:18px}
+  .sig-lv.sl b{color:var(--down)} .sig-lv.tp b{color:var(--up)}
+  .sig-pips{font-size:11px;color:var(--muted)}
   .briefing{background:var(--card2);border:1px solid var(--line);border-radius:12px;
     padding:16px 18px;}
   .briefing h2{margin:0 0 8px;font-size:15px;color:var(--accent)}
@@ -215,6 +316,23 @@
     ⚡ <b>Boost on:</b> for each <b>triggered</b> pair, Claude writes a deeper intraday plan (bias, trigger, if-taken, invalidation, risk) instead of the short one-liner. Uses more tokens per setup. With the full pair list, Claude only writes up triggered pairs either way — so usage stays bounded. <b>The trade numbers on the cards are still code, unchanged.</b>
   </div>
 
+  <div class="tabs markets">
+    <button class="mkt-btn active" data-mkt="openbreak">🔔 Open Breakout</button>
+    <button class="mkt-btn" data-mkt="crypto">🪙 Crypto</button>
+  </div>
+
+  <div class="tabs" id="viewTabs">
+    <button class="tab-btn active" data-view="signals">⚡ Signals</button>
+    <button class="tab-btn" data-view="details">🔬 Details &amp; levels</button>
+  </div>
+
+  <div id="signalsView">
+    <div class="sig-note"><b>Simple view:</b> only setups worth a look right now — a real trigger <i>with room to move</i>. Weak ones are hidden. Type in the price you see on Trading 212 and it tells you if it makes sense, with stop-loss + take-profit. <b>Not advice — you decide and own the risk.</b></div>
+    <div id="sigList"><div class="al-empty">Run a scan to see signals.</div></div>
+  </div>
+
+  <div id="detailsView" style="display:none">
+
   <div class="grid" id="cards"></div>
 
   <div class="briefing" id="briefingBox" style="display:none">
@@ -225,6 +343,7 @@
       <b>not financial advice</b>. Markets are unpredictable; you decide and you own the risk.
     </div>
     <div class="mock" id="mockNote" style="display:none"></div>
+    <button id="briefBtn" class="brief-btn">✍️ Get Claude's written briefing <span class="brief-sub">(the only thing that uses tokens)</span></button>
     <div id="briefingText"></div>
   </div>
 
@@ -236,6 +355,44 @@
       <b>Not financial advice</b> — you decide and you own the risk.
     </div>
     <div id="watchList" class="watch-list"><div class="al-empty">Run a scan to see the levels to watch.</div></div>
+  </div>
+
+  </div><!-- /detailsView -->
+
+  <div id="cryptoView" style="display:none">
+    <div class="cx-note">
+      <b>🪙 Crypto — daily trend regime.</b> This is the <i>one</i> approach that backtested with a real edge
+      (BTC, long/cash, ~0.96 Sharpe, ~+35%/yr historically). It <b>predicts nothing</b> — it just reads whether
+      price is above or below its <b>100-day average</b>: <b>IN</b> = ride the uptrend, <b>OUT</b> = sit in cash.
+      <br><b>⚠ Highest risk on this whole app:</b> historical drawdowns of <b>−60% to −94%</b>, returns are
+      <b>decaying</b>, past ≠ future. Only ever a <b>small slice you can afford to lose</b> — never leveraged.
+      Not financial advice; you decide and own the risk.
+    </div>
+    <div id="cxList"><div class="al-empty">Run a scan to see the crypto trend regime.</div></div>
+  </div>
+
+  <div id="openView" style="display:none">
+    <div class="ob-note">
+      <b>🔔 Open Breakout — US market open (15:30 your time).</b> The one <i>intraday</i> strategy that
+      backtested with an edge. The rule, per stock: mark the <b>high/low of the first 15 minutes</b> after
+      the 9:30 ET open, then take a break of that range <b>only in the direction of the 200-EMA trend</b>
+      (counter-trend breaks had no edge). Stop = other side of the range; target = nearest <b>daily pivot</b> (S/R).
+      <br><b>⚠ 60-day sample only — promising, not proven.</b> Costs here are modelled light; on real CFDs the
+      <b>open is the widest-spread moment</b>, which could eat the edge. Forward-test on demo before real funds.
+      Not financial advice — you decide and own the risk.
+    </div>
+    <div class="ob-ctl">
+      <label>Account €&nbsp;<input id="obAcct" type="number" min="1" step="10" value="500"></label>
+      <label>Risk / trade&nbsp;
+        <select id="obRisk">
+          <option value="0.5">0.5%</option>
+          <option value="1" selected>1%</option>
+          <option value="2">2%</option>
+        </select>
+      </label>
+      <span class="ob-ctl-note">Sizing only. <b>Stop &amp; target are fixed price levels</b> — they don't move with your entry; only your size &amp; R:R do. (Max 2% on purpose — see why in chat.)</span>
+    </div>
+    <div id="obList"><div class="al-empty">Run a scan to see today's opening-range setups.</div></div>
   </div>
 
   <div class="logbook">
@@ -281,12 +438,22 @@ function badgeSetup(setup){
 }
 function pdec(pair){ return (pair.includes('JPY')||pair.includes('HUF')) ? 3 : 5; }
 
+// Asset-class-aware display helpers (fx = pips; stocks/indices = percent).
+function clsOf(p){ return (p && p.cls) ? p.cls : 'fx'; }
+function pdecC(cls,pair){ return cls==='fx' ? pdec(pair) : 2; }
+function fmtC(cls,pair,v){ return (v==null||isNaN(v)) ? '–' : Number(v).toFixed(pdecC(cls,pair)); }
+// a price DISTANCE in the instrument's natural unit
+function distStr(cls,pair,dist,ref){
+  if(cls==='fx') return (dist/pipSize(pair)).toFixed(0)+' pips';
+  return (dist/ref*100).toFixed(2)+'%';
+}
+
 // At current market price, how good is a triggered setup's location?
-// Uses the pre-computed pip distances (reward to nearest structure vs stop).
+// Uses PRICE distances (works for any asset class), reward to structure vs stop.
 function marketRR(p){
-  const dir=setupDir(p.setup); if(!dir || !p.pips) return null;
-  const reward = dir==='LONG' ? p.pips.price_to_resistance : p.pips.price_to_support;
-  const risk = p.pips.suggested_stop;
+  const dir=setupDir(p.setup); if(!dir) return null;
+  const reward = dir==='LONG' ? (p.near_resistance - p.price) : (p.price - p.near_support);
+  const risk = p.suggested_stop_dist;
   if(!(risk>0)) return null;
   return {dir, rr: reward/risk};
 }
@@ -301,10 +468,11 @@ function qualBadge(p){
 function prefillSL(card){
   const dir=card.querySelector('.t-dir').value,
         entry=parseFloat(card.querySelector('.t-entry').value),
-        stop=parseFloat(card.dataset.stop), pair=card.dataset.pair;
+        stop=parseFloat(card.dataset.stop), pair=card.dataset.pair,
+        cls=card.dataset.cls||'fx';
   if(entry>0 && stop>0){
     const sl = dir==='LONG' ? entry-stop : entry+stop;
-    card.querySelector('.t-sl-in').value = sl.toFixed(pdec(pair));
+    card.querySelector('.t-sl-in').value = sl.toFixed(pdecC(cls,pair));
   }
 }
 
@@ -321,20 +489,19 @@ function computeTrade(card){
   if(!(sl>0)){ out.innerHTML='<span class="t-muted">Enter your stop-loss price.</span>'; clearChk(); return; }
   const ok = dir==='LONG' ? sl<entry : sl>entry;
   if(!ok){ out.innerHTML=`<span class="t-warn">For a ${dir==='LONG'?'long':'short'}, the stop-loss must be ${dir==='LONG'?'below':'above'} your entry.</span>`; clearChk(); return; }
-  const d=pdec(pair), ps=pipSize(pair);
+  const cls=card.dataset.cls||'fx', d=pdecC(cls,pair);
   const risk=Math.abs(entry-sl);
   const tp = dir==='LONG' ? entry+rr*risk : entry-rr*risk;
-  const riskPips=(risk/ps).toFixed(1), rewPips=(rr*risk/ps).toFixed(1);
   out.innerHTML =
-    `<div class="t-row t-sl"><span>Stop loss</span><b>${sl.toFixed(d)}</b><span class="t-pips">${riskPips} pips risk</span></div>`+
-    `<div class="t-row t-tp"><span>Take profit</span><b>${tp.toFixed(d)}</b><span class="t-pips">${rewPips} pips · ${rr}R</span></div>`;
+    `<div class="t-row t-sl"><span>Stop loss</span><b>${sl.toFixed(d)}</b><span class="t-pips">${distStr(cls,pair,risk,entry)} risk</span></div>`+
+    `<div class="t-row t-tp"><span>Take profit</span><b>${tp.toFixed(d)}</b><span class="t-pips">${distStr(cls,pair,rr*risk,entry)} · ${rr}R</span></div>`;
   assessEntry(card);
 }
 
 // Mechanical sanity-check: does this entry make sense for the setup?
 function assessEntry(card){
   const chk=card.querySelector('.trade-check'); if(!chk) return;
-  const pair=card.dataset.pair, d=pdec(pair), ps=pipSize(pair),
+  const pair=card.dataset.pair, cls=card.dataset.cls||'fx', d=pdecC(cls,pair),
         dir=card.querySelector('.t-dir').value,
         entry=parseFloat(card.querySelector('.t-entry').value),
         sl=parseFloat(card.querySelector('.t-sl-in').value),
@@ -349,9 +516,9 @@ function assessEntry(card){
   const reward = dir==='LONG' ? (target-entry) : (entry-target);
   const rr = reward/risk;
   const counter = (dir==='LONG' && trend==='DOWN') || (dir==='SHORT' && trend==='UP');
-  const farPips = Math.abs(entry-price)/ps, stopPips = risk/ps;
+  const far = Math.abs(entry-price);
 
-  const rewPips=(reward/ps).toFixed(1), rkPips=(risk/ps).toFixed(1);
+  const rewU=distStr(cls,pair,reward,entry), rkU=distStr(cls,pair,risk,entry);
   const verb = dir==='LONG' ? 'up to' : 'down to';
   const into = dir==='LONG' ? 'buying right into resistance' : 'selling right into support';
   let level, msg;
@@ -360,17 +527,17 @@ function assessEntry(card){
     msg=`Your entry is already ${dir==='LONG'?'at/above':'at/below'} the nearest ${tName} (${target.toFixed(d)}) — no room left ${dir==='LONG'?'above':'below'} to aim for. That's chasing a move that's already run.`;
   } else if(rr<1){
     level='bad';
-    msg=`Only ~${rewPips} pips ${verb} the nearest ${tName} ${target.toFixed(d)} (your first target), vs a ~${rkPips}-pip stop — about ${rr.toFixed(1)}R. You'd be ${into}; too little room to profit. The target, not your entry, is what's too close.`;
+    msg=`Only ~${rewU} ${verb} the nearest ${tName} ${target.toFixed(d)} (your first target), vs a ~${rkU} stop — about ${rr.toFixed(1)}R. You'd be ${into}; too little room to profit. The target, not your entry, is what's too close.`;
   } else if(rr<2){
     level='warn';
-    msg=`~${rewPips} pips ${verb} the nearest ${tName} ${target.toFixed(d)} vs a ~${rkPips}-pip stop — about ${rr.toFixed(1)}R. Price must break that level to reach a 2R target.`;
+    msg=`~${rewU} ${verb} the nearest ${tName} ${target.toFixed(d)} vs a ~${rkU} stop — about ${rr.toFixed(1)}R. Price must break that level to reach a 2R target.`;
   } else {
     level='good';
-    msg=`~${rewPips} pips of room ${verb} the nearest ${tName} ${target.toFixed(d)} vs a ~${rkPips}-pip stop — about ${rr.toFixed(1)}R. Reasonable location.`;
+    msg=`~${rewU} of room ${verb} the nearest ${tName} ${target.toFixed(d)} vs a ~${rkU} stop — about ${rr.toFixed(1)}R. Reasonable location.`;
   }
   let extra='';
   if(counter){ if(level==='good') level='warn'; extra+=` Counter-trend: the 4h trend is ${trend} — you're going against it.`; }
-  if(farPips > stopPips*2){ if(level==='good') level='warn'; extra+=` Your entry is ${farPips.toFixed(0)} pips from current price (${price.toFixed(d)}) — you're anticipating a move, not entering at market.`; }
+  if(far > risk*2){ if(level==='good') level='warn'; extra+=` Your entry is ${distStr(cls,pair,far,price)} from current price (${price.toFixed(d)}) — you're anticipating a move, not entering at market.`; }
 
   const icon = level==='good'?'✅':level==='warn'?'⚠️':'⛔';
   chk.className='trade-check '+level;
@@ -430,7 +597,7 @@ function renderCards(pairs){
     const hint = dir ? `${dir} setup — type your entry`
                      : `no live setup — set side &amp; entry to plan or manage a trade`;
     const trade = `
-      <div class="trade${dir?' live':''}" data-pair="${p.pair}" data-stop="${p.suggested_stop_dist}"
+      <div class="trade${dir?' live':''}" data-pair="${p.pair}" data-cls="${clsOf(p)}" data-stop="${p.suggested_stop_dist}"
            data-price="${p.price}" data-res="${p.near_resistance}" data-sup="${p.near_support}" data-trend="${p.trend_4h}">
         <div class="trade-h">Trade levels <span>(${hint})</span></div>
         <div class="trade-in">
@@ -469,39 +636,43 @@ function renderCards(pairs){
 
 async function scan(){
   const btn=$('#scanBtn'); btn.disabled=true; $('#spin').style.display='inline';
-  const boost = $('#boostToggle').checked;
-  $('#spin').textContent = boost
-    ? 'Scanning all pairs… deep AI analysis of any triggered setups…'
-    : 'Scanning all pairs… AI writes up any triggered setups…';
+  $('#spin').textContent = 'Scanning '+marketLabel(CURRENT_MARKET)+'… (code only — no tokens)';
   try{
     const r = await fetch('/scan',{method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({boost})});
+      body:JSON.stringify({market:CURRENT_MARKET})});
     const d = await r.json();
-    $('#stamp').textContent = 'Last scan: '+d.generated_at
-      +(d.scanned_count!=null?(' · '+d.triggered_count+' of '+d.scanned_count+' pairs triggered'):'')
-      +(d.model?(' · '+d.model):'');
-    renderCards(d.pairs);
-    renderWatch(d.pairs);
-    // keep the logbook's pair dropdown in sync with the scanned pairs
-    (function(){
-      const names=(d.pairs||[]).filter(p=>p.ok).map(p=>p.pair);
-      const sel=$('#lbPair');
-      if(sel && names.length){ const cur=sel.value;
-        sel.innerHTML=names.map(p=>`<option>${p}</option>`).join('');
-        if(names.includes(cur)) sel.value=cur; }
-    })();
-    $('#briefingBox').style.display='block';
-    $('#briefingText').innerHTML = formatBriefing(d.briefing.text);
-    const mn=$('#mockNote');
-    if(d.briefing.mock){
-      mn.style.display='block'; mn.className='mock';
-      mn.textContent='⚠ Mock mode — Claude was not reached (no API key and Claude Code CLI unavailable, or the call failed). Showing placeholder text.';
+    window._lastScan = d;
+    if(d.mode==='openbreak'){                    // US market-open breakout
+      showOpenView(true);
+      $('#stamp').textContent = 'Last scan: '+d.generated_at
+        +(d.scanned_count!=null?(' · '+d.signal_count+' of '+d.scanned_count+' with a live signal'):'');
+      renderOpen(d.pairs);
+    } else if(d.mode==='trend'){                 // crypto daily-trend regime
+      showCryptoView(true);
+      $('#stamp').textContent = 'Last scan: '+d.generated_at
+        +(d.scanned_count!=null?(' · '+d.in_count+' of '+d.scanned_count+' in an uptrend'):'');
+      renderCrypto(d.pairs);
     } else {
-      mn.style.display='none';
-      const via = d.briefing.via==='cli' ? 'via your Claude subscription (Claude Code CLI)'
-                : d.briefing.via==='api' ? 'via the Anthropic API' : '';
-      if(via){ mn.style.display='block'; mn.className='source'; mn.textContent='Briefing written by Claude '+via+'.'; }
+      showCryptoView(false);
+      $('#stamp').textContent = 'Last scan: '+d.generated_at
+        +(d.scanned_count!=null?(' · '+d.triggered_count+' of '+d.scanned_count+' triggered'):'');
+      renderCards(d.pairs);
+      renderWatch(d.pairs);
+      renderSignals(d.pairs);
+      // keep the logbook's pair dropdown in sync with the scanned pairs
+      (function(){
+        const names=(d.pairs||[]).filter(p=>p.ok).map(p=>p.pair);
+        const sel=$('#lbPair');
+        if(sel && names.length){ const cur=sel.value;
+          sel.innerHTML=names.map(p=>`<option>${p}</option>`).join('');
+          if(names.includes(cur)) sel.value=cur; }
+      })();
+      // The written briefing is OPT-IN (tokens). Reset its area; show the button.
+      $('#briefingBox').style.display='block';
+      $('#briefingText').innerHTML='';
+      $('#mockNote').style.display='none';
+      const bb=$('#briefBtn'); bb.style.display='block'; bb.disabled=false;
     }
   }catch(e){
     $('#stamp').textContent = 'Scan failed: '+e;
@@ -510,6 +681,172 @@ async function scan(){
   }
 }
 $('#scanBtn').addEventListener('click', scan);
+
+// --- market tabs (FX / indices / stocks). Switching auto-scans that market. ---
+let CURRENT_MARKET = 'openbreak';
+function marketLabel(m){ return m==='openbreak' ? 'the US open breakout'
+  : m==='crypto' ? 'crypto (daily trend)' : 'FX pairs'; }
+
+// --- US market-open breakout view ------------------------------------------
+function showOpenView(on){
+  $('#openView').style.display = on ? 'block' : 'none';
+  if(on){ $('#viewTabs').style.display='none'; $('#signalsView').style.display='none';
+    $('#detailsView').style.display='none'; $('#cryptoView').style.display='none'; }
+}
+function renderOpen(pairs){
+  const box=$('#obList'); box.innerHTML='';
+  const oks=(pairs||[]).filter(p=>p.ok);
+  if(!oks.length){ box.innerHTML='<div class="al-empty">No data in the latest scan.</div>'; return; }
+  // bind the account/risk controls once → re-render on change
+  ['obAcct','obRisk'].forEach(id=>{ const e=document.getElementById(id);
+    if(e&&!e._bound){ e._bound=1; e.addEventListener('input',()=>{ if(window._lastScan?.pairs) renderOpen(window._lastScan.pairs); }); }});
+  const acct=parseFloat(($('#obAcct')||{}).value)||500;
+  const riskPct=(parseFloat(($('#obRisk')||{}).value)||1)/100;
+  const rank={long:0,short:0,waiting:1,skip:2,pre:3};
+  oks.sort((a,b)=>(rank[a.state]??9)-(rank[b.state]??9));
+  oks.forEach(p=>{
+    const sig = p.state==='long'||p.state==='short';
+    const cls = p.state==='long'?'ob-long':p.state==='short'?'ob-short'
+      : p.state==='waiting'?'ob-wait':p.state==='skip'?'ob-skip':'ob-pre';
+    const badge = p.state==='long'?'▲ LONG signal':p.state==='short'?'▼ SHORT signal'
+      : p.state==='waiting'?'… waiting for break':p.state==='skip'?'✕ no trade (counter-trend)':'… range forming';
+    let rows='';
+    if(p.or_hi!=null){
+      rows+=`<div class="ob-row"><span class="ob-k">Opening range</span><b>${p.or_lo} – ${p.or_hi}</b></div>`;
+      rows+=`<div class="ob-row"><span class="ob-k">Trend bias (200-EMA)</span><b class="${p.bias==='UP'?'pos':'neg'}">${p.bias==='UP'?'▲ up (longs only)':'▼ down (shorts only)'}</b></div>`;
+    }
+    if(sig){
+      rows+=`<div class="ob-row"><span class="ob-k">Entry (break)</span><b>${p.entry}</b></div>`;
+      rows+=`<div class="ob-row"><span class="ob-k">Stop (fixed)</span><b class="neg">${p.stop}</b></div>`;
+      if(p.tp!=null) rows+=`<div class="ob-row"><span class="ob-k">Target — pivot (fixed)</span><b class="pos">${p.tp}</b>`
+        +(p.rr!=null?`<span class="ob-sub">${p.rr}R</span>`:'')+`</div>`;
+    }
+    const calc = sig
+      ? `<div class="ob-calc">
+           <label>Your actual T212 entry&nbsp;<input class="ob-entry" type="number" step="0.01" value="${p.entry}"></label>
+           <div class="ob-calc-out"></div>
+         </div>` : '';
+    const el=document.createElement('div'); el.className='ob '+cls;
+    el.innerHTML=
+      `<div class="ob-top"><span class="ob-name">${p.pair}</span>`
+      +`<span class="ob-badge ${cls}">${badge}</span></div>`
+      +`<div class="ob-price">${p.price!=null?('$'+p.price):'–'}</div>`
+      +`<div class="ob-rows">${rows}</div>`
+      +calc
+      +`<div class="ob-head">${p.headline||''}</div>`;
+    box.appendChild(el);
+    if(sig){
+      const inp=el.querySelector('.ob-entry'), out=el.querySelector('.ob-calc-out');
+      const long=p.state==='long';
+      const run=()=>{
+        const entry=parseFloat(inp.value);
+        if(!entry){ out.className='ob-calc-out'; out.innerHTML=''; return; }
+        const rpu=Math.abs(entry-p.stop);
+        if(rpu<=0){ out.className='ob-calc-out ob-bad'; out.textContent='Entry = stop — no trade.'; return; }
+        const past = p.tp!=null && (long? entry>=p.tp : entry<=p.tp);
+        const rr = p.tp!=null ? Math.abs(p.tp-entry)/rpu : null;
+        const stopBad = long? entry<=p.stop : entry>=p.stop; // on the wrong side of the stop
+        const units=(acct*riskPct)/rpu, notional=units*entry;
+        if(past){ out.className='ob-calc-out ob-bad'; out.innerHTML='⛔ Price is already at/past the target — the move is done, skip it.'; return; }
+        if(stopBad){ out.className='ob-calc-out ob-bad'; out.innerHTML='⛔ That entry is already beyond the stop — invalid.'; return; }
+        // this strategy's targets are small by design (RR often <1, carried by a ~69% hit-rate),
+        // so warn only when a LATE entry has eroded the R:R vs the alert — not on RR<1 itself.
+        const degraded = rr!=null && p.rr!=null && rr < p.rr*0.85;
+        out.className='ob-calc-out '+(degraded?'ob-warn':'ob-ok');
+        out.innerHTML =
+          `Risk €${(acct*riskPct).toFixed(2)} → size <b>${units.toFixed(units<10?3:1)} units</b> (~$${notional.toFixed(0)})`
+          +`<br>Risk/unit <b>${rpu.toFixed(2)}</b>`
+          +(rr!=null?` · R:R now <b>${rr.toFixed(2)}R</b>${p.rr!=null?` <span class="ob-sub">(alert: ${p.rr}R)</span>`:''}`:'')
+          +(degraded?`<br>⚠️ Entering late has shrunk your R:R below the alert — you're chasing. Consider skipping.`:'');
+      };
+      inp.addEventListener('input',run); run();
+    }
+  });
+}
+
+// --- crypto daily-trend regime view ---------------------------------------
+function showCryptoView(on){
+  $('#openView').style.display = 'none';
+  $('#viewTabs').style.display = on ? 'none' : '';
+  $('#cryptoView').style.display = on ? 'block' : 'none';
+  if(on){ $('#signalsView').style.display='none'; $('#detailsView').style.display='none'; }
+  else {
+    const v=document.querySelector('.tab-btn.active')?.dataset.view||'signals';
+    $('#signalsView').style.display = v==='signals'?'block':'none';
+    $('#detailsView').style.display = v==='details'?'block':'none';
+  }
+}
+function fmtPx(v){
+  if(v==null||isNaN(v)) return '–';
+  const a=Math.abs(v), d=a>=100?2:a>=1?4:6;
+  return '$'+Number(v).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});
+}
+function sgn(x){ return (x==null?'–':(x>=0?'+':'')+x+'%'); }
+function renderCrypto(pairs){
+  const box=$('#cxList'); box.innerHTML='';
+  const oks=(pairs||[]).filter(p=>p.ok);
+  if(!oks.length){ box.innerHTML='<div class="al-empty">No crypto data in the latest scan.</div>'; return; }
+  oks.sort((a,b)=> (b.in_market?1:0)-(a.in_market?1:0) || b.dist100_pct-a.dist100_pct);
+  oks.forEach(p=>{
+    const up=p.in_market;
+    const el=document.createElement('div'); el.className='cx '+(up?'in':'out');
+    el.innerHTML=
+      `<div class="cx-top"><span class="cx-name">${p.pair}</span>`
+      +`<span class="cx-badge ${up?'b-in':'b-out'}">${up?'▲ IN · uptrend':'▼ OUT · cash'}</span></div>`
+      +`<div class="cx-price">${fmtPx(p.price)}</div>`
+      +`<div class="cx-rows">`
+      +`<div class="cx-row"><span class="cx-k">100-day avg</span><b>${fmtPx(p.sma100)}</b>`
+      +`<span class="cx-sub ${up?'pos':'neg'}">${sgn(p.dist100_pct)}</span></div>`
+      +(p.sma200!=null?`<div class="cx-row"><span class="cx-k">200-day avg</span><b>${fmtPx(p.sma200)}</b>`
+        +`<span class="cx-sub ${p.dist200_pct>=0?'pos':'neg'}">${sgn(p.dist200_pct)}</span></div>`:'')
+      +`<div class="cx-row"><span class="cx-k">from 1-yr high</span><b class="neg">${sgn(p.from_high_pct)}</b></div>`
+      +`</div>`
+      +`<div class="cx-verdict">${up
+          ? 'Price is <b>above</b> its 100-day average → the rule says <b>hold</b> (ride it while it lasts).'
+          : 'Price is <b>below</b> its 100-day average → the rule says <b>stay in cash</b> (step aside until it recovers).'}</div>`;
+    box.appendChild(el);
+  });
+}
+document.querySelectorAll('.mkt-btn').forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.mkt===CURRENT_MARKET) return;
+  document.querySelectorAll('.mkt-btn').forEach(x=>x.classList.toggle('active', x===b));
+  CURRENT_MARKET = b.dataset.mkt;
+  scan();
+}));
+
+// On load, show the Open Breakout view and run its (zero-token) scan.
+showOpenView(true);
+scan();
+
+// --- on-demand Claude briefing (THIS is the only thing that spends tokens) ---
+$('#briefBtn').addEventListener('click', async ()=>{
+  const d = window._lastScan; if(!d) return;
+  const boost = $('#boostToggle').checked;
+  const bb=$('#briefBtn'); bb.disabled=true;
+  $('#spin').style.display='inline';
+  $('#spin').textContent = boost ? 'Asking Claude for a deep briefing…' : 'Asking Claude to write the briefing…';
+  try{
+    const r = await fetch('/briefing',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pairs:d.pairs, boost})});
+    const b = await r.json();
+    $('#briefingText').innerHTML = formatBriefing(b.text);
+    const mn=$('#mockNote');
+    if(b.mock){
+      mn.style.display='block'; mn.className='mock';
+      mn.textContent='⚠ Mock mode — Claude was not reached (no API key and the Claude Code CLI was unavailable or failed).';
+    } else {
+      const via = b.via==='cli' ? 'via your Claude subscription (Claude Code CLI)'
+                : b.via==='api' ? 'via the Anthropic API' : '';
+      if(via){ mn.style.display='block'; mn.className='source'; mn.textContent='Briefing written by Claude '+via+'.'; }
+      else mn.style.display='none';
+    }
+    bb.style.display='none';
+  }catch(e){
+    $('#briefingText').innerHTML='<p class="bf-p">Briefing failed: '+e+'</p>';
+  }finally{
+    bb.disabled=false; $('#spin').style.display='none';
+  }
+});
 
 // AI Boost toggle — remember the choice, show the note when on
 (function(){
@@ -531,8 +868,9 @@ function renderWatch(pairs){
   oks.sort((a,b)=>(setupDir(b.setup)?1:0)-(setupDir(a.setup)?1:0));
   if(!oks.length){ box.innerHTML='<div class="al-empty">No data in the latest scan.</div>'; return; }
   oks.forEach(p=>{
+    const pair=p.pair, cl=clsOf(p), F=v=>fmtC(cl,pair,v);
     const R=p.near_resistance, S=p.near_support, stop=p.suggested_stop_dist,
-          dir=setupDir(p.setup), pair=p.pair;
+          dir=setupDir(p.setup);
     let rows=[];
     if(dir){
       const entry=p.price;
@@ -540,26 +878,104 @@ function renderWatch(pairs){
       const tp = dir==='LONG' ? entry+2*stop : entry-2*stop;
       const voidLvl = dir==='LONG' ? S : R;
       rows.push(['🔔 Actionable',
-        `${dir} setup is live now. If you take it near <b>${fmt(pair,entry)}</b> → stop-loss <b>${fmt(pair,sl)}</b>, take-profit (2R) <b>${fmt(pair,tp)}</b>. Set these on your platform.`]);
+        `${dir} setup is live now. If you take it near <b>${F(entry)}</b> → stop-loss <b>${F(sl)}</b>, take-profit (2R) <b>${F(tp)}</b>. Set these on your platform.`]);
       rows.push(['Bail out',
-        `If price closes back ${dir==='LONG'?'below':'above'} <b>${fmt(pair,voidLvl)}</b>, the setup has failed — close or don't enter.`]);
+        `If price closes back ${dir==='LONG'?'below':'above'} <b>${F(voidLvl)}</b>, the setup has failed — close or don't enter.`]);
     } else if(p.trend_4h==='UP'){
-      rows.push(['Watch for long', `Support <b>${fmt(pair,S)}</b> — a pullback that holds here is where a long can trigger. Wait for the trigger; don't pre-empt.`]);
-      rows.push(['If it breaks up', `Above resistance <b>${fmt(pair,R)}</b> → uptrend continues.`]);
-      rows.push(['If it breaks down', `A sustained move below <b>${fmt(pair,S)}</b> → bias flips down; stand aside.`]);
+      rows.push(['Watch for long', `Support <b>${F(S)}</b> — a pullback that holds here is where a long can trigger. Wait for the trigger; don't pre-empt.`]);
+      rows.push(['If it breaks up', `Above resistance <b>${F(R)}</b> → uptrend continues.`]);
+      rows.push(['If it breaks down', `A sustained move below <b>${F(S)}</b> → bias flips down; stand aside.`]);
     } else {
-      rows.push(['Watch for short', `Resistance <b>${fmt(pair,R)}</b> — a pullback that holds here is where a short can trigger. Wait for the trigger; don't pre-empt.`]);
-      rows.push(['If it breaks down', `Below support <b>${fmt(pair,S)}</b> → downtrend continues.`]);
-      rows.push(['If it breaks up', `A sustained move above <b>${fmt(pair,R)}</b> → bias flips up; stand aside.`]);
+      rows.push(['Watch for short', `Resistance <b>${F(R)}</b> — a pullback that holds here is where a short can trigger. Wait for the trigger; don't pre-empt.`]);
+      rows.push(['If it breaks down', `Below support <b>${F(S)}</b> → downtrend continues.`]);
+      rows.push(['If it breaks up', `A sustained move above <b>${F(R)}</b> → bias flips up; stand aside.`]);
     }
     const el=document.createElement('div'); el.className='watch-item'+(dir?' live':'');
     el.innerHTML =
-      `<div class="watch-head"><b>${pair}</b> <span class="watch-price">${fmt(pair,p.price)}</span> `+
+      `<div class="watch-head"><b>${pair}</b> <span class="watch-price">${F(p.price)}</span> `+
       `${badgeTrend(p.trend_4h)} ${dir?badgeSetup(p.setup):'<span class="badge b-wait">waiting</span>'}</div>`+
       rows.map(r=>`<div class="watch-row"><span class="watch-k">${r[0]}</span><span class="watch-v">${r[1]}</span></div>`).join('');
     box.appendChild(el);
   });
 }
+
+// --- Signals (simple view): only triggered setups with real room ---
+function renderSignals(pairs){
+  const box=$('#sigList'); box.innerHTML='';
+  const oks=(pairs||[]).filter(p=>p.ok);
+  const sigs=oks.filter(p=>{ const m=marketRR(p); return m && m.rr>=1.5; });
+  if(!sigs.length){
+    box.innerHTML='<div class="sig-empty">No clean signals right now.<br><br>'
+      +'Setups are triggering, but they’re all at a <b>poor location</b> '
+      +'(price is entering right into support/resistance, so there’s little room to profit). '
+      +'That’s a good reason to <b>wait</b> — a signal is only worth taking when it also has room to move.</div>';
+    return;
+  }
+  sigs.sort((a,b)=> marketRR(b).rr - marketRR(a).rr);
+  sigs.forEach(p=>{
+    const m=marketRR(p), cl=clsOf(p), F=v=>fmtC(cl,p.pair,v);
+    const act = m.dir==='LONG' ? 'BUY' : 'SELL';
+    const kind = m.dir==='LONG' ? 'buy' : 'sell';
+    const target = m.dir==='LONG' ? p.near_resistance : p.near_support;
+    const el=document.createElement('div'); el.className='sig '+kind;
+    el.innerHTML=
+      `<div class="sig-top"><span class="sig-act">${act}</span><span class="sig-pair">${p.pair}</span>`
+      +`<span class="sig-rr">${m.rr.toFixed(1)}R room</span></div>`
+      +`<div class="sig-why">${m.dir==='LONG'?'Uptrend':'Downtrend'}, ${act.toLowerCase()} setup triggered. `
+      +`Live price <b>${F(p.price)}</b> · first target <b>${F(target)}</b>.</div>`
+      +`<div class="sig-entry"><label>Your entry price (what you see on Trading 212)`
+      +`<input class="sig-in" type="number" step="any" placeholder="${F(p.price)}" `
+      +`data-pair="${p.pair}" data-cls="${cl}" data-dir="${m.dir}" data-price="${p.price}" `
+      +`data-res="${p.near_resistance}" data-sup="${p.near_support}" data-stop="${p.suggested_stop_dist}"></label></div>`
+      +`<div class="sig-out"><span class="sig-hint">Type your entry to check it and get stop-loss + take-profit.</span></div>`;
+    box.appendChild(el);
+    el.querySelector('.sig-in').addEventListener('input',()=>sigCheck(el));
+  });
+}
+
+function sigCheck(el){
+  const inp=el.querySelector('.sig-in'), out=el.querySelector('.sig-out');
+  const entry=parseFloat(inp.value);
+  const pair=inp.dataset.pair, cl=inp.dataset.cls||'fx', dir=inp.dataset.dir;
+  const res=+inp.dataset.res, sup=+inp.dataset.sup,
+        risk=+inp.dataset.stop, price=+inp.dataset.price;
+  const F=v=>fmtC(cl,pair,v), D=(dist,ref)=>distStr(cl,pair,dist,ref);
+  if(!(entry>0)){ out.innerHTML='<span class="sig-hint">Type your entry to check it and get stop-loss + take-profit.</span>'; return; }
+  const target = dir==='LONG' ? res : sup;
+  const reward = dir==='LONG' ? (target-entry) : (entry-target);
+  const rr = risk>0 ? reward/risk : 0;
+  let note='';
+  if(reward<=0){
+    out.innerHTML=`<div class="sig-no">⛔ Doesn’t make sense here. You’re already `
+      +`${dir==='LONG'?'at/above':'at/below'} the target ${F(target)} — no room left `
+      +`${dir==='LONG'?'up':'down'}. That’s chasing a move that’s already run.</div>`;
+    return;
+  }
+  if(rr<1.5){
+    out.innerHTML=`<div class="sig-no">⛔ Doesn’t make sense here. Only ~${D(reward,entry)} `
+      +`to the target ${F(target)} vs a ~${D(risk,entry)} stop (${rr.toFixed(1)}R) — `
+      +`too little room. You’d be ${dir==='LONG'?'buying into resistance':'selling into support'}.</div>`;
+    return;
+  }
+  const away=Math.abs(entry-price);
+  if(away/risk>1) note=` Your entry is ~${D(away,price)} from the live price (${F(price)}) — wait for price to reach it.`;
+  const sl = dir==='LONG' ? entry-risk : entry+risk;
+  const tp = target;
+  out.innerHTML=
+    `<div class="sig-yes">✅ Makes sense — ${rr.toFixed(1)}R to target.${note}</div>`
+    +`<div class="sig-levels">`
+    +`<div class="sig-lv sl"><span>Stop loss</span><b>${F(sl)}</b><span class="sig-pips">${D(risk,entry)} risk</span></div>`
+    +`<div class="sig-lv tp"><span>Take profit</span><b>${F(tp)}</b><span class="sig-pips">${D(reward,entry)} · ${rr.toFixed(1)}R</span></div>`
+    +`</div>`;
+}
+
+// tab switching
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.toggle('active', x===b));
+  const v=b.dataset.view;
+  $('#signalsView').style.display = v==='signals'?'block':'none';
+  $('#detailsView').style.display = v==='details'?'block':'none';
+}));
 
 // --- trade logbook (saved to a file on this machine via /log) ---
 let LOG = {start_balance:260, trades:[]};
