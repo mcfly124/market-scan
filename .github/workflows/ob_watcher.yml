@@ -5,10 +5,19 @@ name: Open-breakout watcher
 # Real-time Alpaca IEX data. Zero Claude usage. NOT financial advice.
 on:
   schedule:
-    # Two starts so it works in both US DST seasons; the script itself exits
-    # immediately on the "wrong-season" run, so only one actually trades.
-    - cron: "40 13 * * 1-5"   # ~09:40 ET during US summer (EDT)
-    - cron: "40 14 * * 1-5"   # ~09:40 ET during US winter (EST)
+    # GitHub's scheduler is best-effort: runs are often delayed 5-20 min or
+    # dropped entirely, so we fire several redundant starts per season, a few
+    # minutes apart and BEFORE the 09:45 ET window opens. The script exits fast
+    # on any "wrong-season" or out-of-window start, and the concurrency group
+    # keeps the first good start holding the slot (no double-alerts).
+    # US summer (EDT): open 13:30 UTC, window 13:45-15:00 UTC
+    - cron: "25 13 * * 1-5"   # ~09:25 ET (EDT)
+    - cron: "35 13 * * 1-5"   # ~09:35 ET (EDT)
+    - cron: "45 13 * * 1-5"   # ~09:45 ET (EDT)
+    # US winter (EST): open 14:30 UTC, window 14:45-16:00 UTC
+    - cron: "25 14 * * 1-5"   # ~09:25 ET (EST)
+    - cron: "35 14 * * 1-5"   # ~09:35 ET (EST)
+    - cron: "45 14 * * 1-5"   # ~09:45 ET (EST)
   workflow_dispatch: {}        # manual "Run workflow" button for testing
 
 concurrency:
