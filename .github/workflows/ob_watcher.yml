@@ -19,6 +19,13 @@ on:
     - cron: "35 14 * * 1-5"   # ~09:35 ET (EST)
     - cron: "45 14 * * 1-5"   # ~09:45 ET (EST)
   workflow_dispatch: {}        # manual "Run workflow" button for testing
+  repository_dispatch:         # PRIMARY reliable trigger: an external cron
+    types: [open-breakout]     # (cron-job.org) POSTs this each weekday morning,
+                               # so the fire does NOT depend on GitHub's flaky
+                               # best-effort scheduler. The schedule: crons above
+                               # stay as a free backup; the concurrency group
+                               # stops any double-alert (a 2nd start only runs
+                               # after the window closes, then exits at once).
 
 concurrency:
   group: ob-watcher
